@@ -17,7 +17,8 @@ function fixture() {
   const participants = new Map();
   const calls = [];
   const audioContext = {
-    currentTime: 12, sampleRate: 44100, destination: {},
+    currentTime: 12, sampleRate: 44100, destination: {}, state: 'suspended', resumed: 0,
+    resume() { this.state = 'running'; this.resumed++; return Promise.resolve(); },
     createBuffer(channels, length, rate) { return new Buffer(channels, length, rate); },
     createBufferSource() {
       const output = { stopped: false, connect() {}, disconnect() {},
@@ -85,6 +86,8 @@ function fixture() {
 
 {
   const f = fixture();
+  f.env.RuffleRollbackAudio.unlock();
+  assert.equal(f.audioContext.resumed, 1, 'A player gesture resumes the browser audio context');
   f.env.RuffleRollbackAudio.setAudible(true);
   for (let i = 1; i <= 7; i++) f.tick(i);
   const saved = f.save();

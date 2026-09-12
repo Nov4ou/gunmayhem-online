@@ -217,6 +217,13 @@
   };
   rollback.registerParticipant('audio', participant);
   root.RuffleRollbackAudio = {
+    unlock() {
+      for (const state of contexts.values()) {
+        if (state.context.state === 'suspended' && typeof state.context.resume === 'function') {
+          try { state.context.resume().catch?.(() => {}); } catch (_) {}
+        }
+      }
+    },
     setAudible(value) {
       audible = !!value;
       for (const state of contexts.values()) {

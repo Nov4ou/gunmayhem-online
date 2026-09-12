@@ -66,6 +66,7 @@ function receiveLatency(data) {
   refreshLatency();
 }
 function runtime(type,data={}) { iframe?.contentWindow?.postMessage({source:'gunmayhem-app',type,...data},location.origin); }
+function unlockAudio() {try{iframe?.contentWindow?.RuffleRollbackAudio?.unlock?.();}catch{}}
 function mask() { let bits=0; for (const key of held) bits |= keys.get(key)||0; for (const key of touchHeld) bits |= keys.get(key)||0; return bits; }
 function refreshTouchButtons() { for (const button of document.querySelectorAll('.touch-button')) button.classList.toggle('active',touchHeld.has(button.dataset.code)); }
 function release() { held.clear();touchHeld.clear();touchPointers.clear();refreshTouchButtons();send('input',{mask:0}); }
@@ -94,7 +95,7 @@ function releaseTouchPointer(pointerId) {
 for(const button of document.querySelectorAll('.touch-button')){
   button.addEventListener('pointerdown',event=>{
     if(!started||botMode)return;
-    event.preventDefault();
+    event.preventDefault();unlockAudio();
     try{button.setPointerCapture(event.pointerId);}catch{}
     const code=button.dataset.code;touchPointers.set(event.pointerId,code);setInput(code,true,touchHeld);refreshTouchButtons();
   });
@@ -207,7 +208,7 @@ $('stop').onclick=()=>send('stop');
 $('back').onclick=()=>{stopGame('');if(room)updateRoom(room);};
 for(const id of ['map','lives'])$(id).onchange=()=>send('settings',{map:Number($('map').value),lives:Number($('lives').value)});
 $('invite').onclick=async()=>{if(!room)return;const url=new URL(location.href);url.search=`?room=${room.room}`;try{await navigator.clipboard.writeText(url.href);notice('The invitation link has been copied. Share it with the other participants.');}catch{const input=document.createElement('input');input.value=url.href;document.body.append(input);input.select();const copied=document.execCommand('copy');input.remove();notice(copied?'The invitation link has been copied.':`Invitation link: ${url.href}`);}};
-$('sound').onclick=()=>{volume=volume?0:1;runtime('volume',{volume});$('sound').textContent=`Sound: ${volume?'Enabled':'Disabled'}`;};
+$('sound').onclick=()=>{volume=volume?0:1;if(volume)unlockAudio();runtime('volume',{volume});$('sound').textContent=`Sound: ${volume?'Enabled':'Disabled'}`;};
 const touchCapable=('ontouchstart' in window)||matchMedia('(pointer:coarse)').matches;
 document.body.classList.toggle('touch-capable',touchCapable);
 let expanded=false;
