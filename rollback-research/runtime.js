@@ -291,6 +291,7 @@ window.addEventListener('click',event=>{
 window.addEventListener('blur',()=>send('release'));
 window.addEventListener('error',event=>fail(new Error(event.message)));
 window.rollbackDiagnostics=baseDiagnostics;
+window.unlockGameAudio=()=>{try{RuffleRollbackAudio.unlock();}catch{}try{player?.ruffle(1).resume();}catch{}};
 window.gunmayhemSpikeReport=()=>spikeRecorder.report;
 window.gunmayhemSpikeDownload=()=>{
  const report=spikeRecorder.report;if(!report)return false;
@@ -299,7 +300,10 @@ window.gunmayhemSpikeDownload=()=>{
 };
 (async()=>{
  try{
-  await RuffleRollback.pagesReady;
+  // The scalar Ruffle fallback is used by Safari versions without every modern
+  // WebAssembly extension. Lockstep does not capture memory, so the optional
+  // SIMD checkpoint helper may be unavailable without affecting simulation.
+  try{await RuffleRollback.pagesReady;}catch{}
   player=RufflePlayer.newest().createPlayer();document.querySelector('#player').append(player);
   const data=new Uint8Array(await(await fetch('./gunmayhem-net.swf')).arrayBuffer());
   await player.ruffle(1).load({data,swfFileName:'gunmayhem-net.swf',allowScriptAccess:true});boot();

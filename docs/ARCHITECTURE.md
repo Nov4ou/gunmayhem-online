@@ -39,6 +39,8 @@ The browser buffers authoritative rows and simulates each row exactly once. When
 
 The production scheduler does not predict remote input and does not rewind completed frames. The state, page, audio, and WebGL checkpoint modules remain in the repository because they document and test the earlier rollback design and are still useful for future experiments.
 
+Ruffle selects between its modern WebAssembly build and a scalar compatibility build at startup. Both files are packaged. The modern build retains render-skip instrumentation; the scalar build omits that optional optimization and renders catch-up frames normally. Production lockstep does not capture or restore memory, so Safari can safely skip the SIMD checkpoint helper when that instruction set is unavailable.
+
 ## Consistency checks
 
 Once per second, clients report a lightweight state containing the network frame, original update count, and root timeline position. The server compares reports only for a common finalized frame. A mismatch terminates the match instead of allowing visibly divergent simulations to continue.

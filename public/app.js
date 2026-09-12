@@ -7,7 +7,7 @@ const palette = ['#77b4f7','#ef7061','#f6ca64','#8bd096'];
 let socket, myId, room, match, iframe, bootConfig, reconnectTimer, pingTimer, reconnectAttempts = 0, volume = 1, started = false, latestFrame = 0, stateCache;
 let pingSequence = 0, latencyMs = null, inputLatencyMs = null, inputLatencyP95Ms = null, inputLatencyCount = 0, inputProbeSequence = 0;
 const pingSent = new Map(), latencySamples = [];
-let showingResult = false, resultFrame = null;
+let showingResult = false, resultFrame = null, runtimeError = '';
 const query = new URLSearchParams(location.search);
 let joinAfterConnect = query.get('room');
 const botMode = /^(?:1|2|3|4|stress)$/.test((query.get('bot')||'').toLowerCase()) ? (query.get('bot')||'').toLowerCase() : '';
@@ -66,7 +66,7 @@ function receiveLatency(data) {
   refreshLatency();
 }
 function runtime(type,data={}) { iframe?.contentWindow?.postMessage({source:'gunmayhem-app',type,...data},location.origin); }
-function unlockAudio() {try{iframe?.contentWindow?.RuffleRollbackAudio?.unlock?.();}catch{}}
+function unlockAudio() {try{iframe?.contentWindow?.unlockGameAudio?.();}catch{}}
 function mask() { let bits=0; for (const key of held) bits |= keys.get(key)||0; for (const key of touchHeld) bits |= keys.get(key)||0; return bits; }
 function refreshTouchButtons() { for (const button of document.querySelectorAll('.touch-button')) button.classList.toggle('active',touchHeld.has(button.dataset.code)); }
 function release() { held.clear();touchHeld.clear();touchPointers.clear();refreshTouchButtons();send('input',{mask:0}); }
@@ -151,7 +151,7 @@ function connect() {
     else if(data.type==='hello') {myId=data.id;if(joinAfterConnect){send('join',{room:joinAfterConnect,name:$('name').value});joinAfterConnect=null;}}
     else if(data.type==='joined') {myId=data.id;notice('');}
     else if(data.type==='room') updateRoom(data);
-    else if(data.type==='left') {stopGame('');room=null;$('lobby').hidden=true;$('entrance').hidden=false;history.replaceState(null,'',location.pathname);}
+    else if(data.type==='left') {const reason=runtimeError;runtimeError='';stopGame(reason);room=null;$('lobby').hidden=true;$('entrance').hidden=false;history.replaceState(null,'',location.pathname);}
     else if(data.type==='error') notice(data.message);
     else if(data.type==='load') {
       hideSpikeButton();stopGame('');match=data.match;bootConfig={seed:data.seed,map:data.settings.map,lives:data.settings.lives,players:data.players};
@@ -189,7 +189,7 @@ window.addEventListener('message',event=>{
   else if(data.type==='return'&&showingResult) {stopGame('');if(room)updateRoom(room);}
   else if(data.type==='release')release();
   else if(data.type==='spikeCaptured')showSpikeButton(data.summary);
-  else if(data.type==='error') {setOverlay('The game could not be loaded or synchronized. Leave the room and try again.');notice(data.message);send('leave');}
+  else if(data.type==='error') {runtimeError=`The game could not be started: ${data.message}`;setOverlay('The game could not be loaded or synchronized. Leave the room and try again.');notice(runtimeError);send('leave');}
 });
 for(const type of ['keydown','keyup'])window.addEventListener(type,event=>{if(!keys.has(event.code)||/INPUT|SELECT|TEXTAREA/.test(event.target.tagName)||!started)return;event.preventDefault();if(!event.repeat)key(event.code,type==='keydown');});
 window.addEventListener('blur',()=>{browserDebugEvent('blur');release();});

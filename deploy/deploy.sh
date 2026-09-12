@@ -43,6 +43,8 @@ node rollback-research/prepare.cjs
 [[ -f "$BUILD_DIR/public/runtime.js" ]] || die "Missing build/public/runtime.js"
 [[ -f "$BUILD_DIR/public/gunmayhem-net.swf" ]] || die "Missing build/public/gunmayhem-net.swf"
 [[ -f "$BUILD_DIR/ruffle/826bb0938097485a2c9d.wasm" ]] || die "Missing packaged Ruffle WASM"
+[[ -f "$BUILD_DIR/ruffle/core.ruffle.f000070ea72f8ae4fe3a.js" ]] || die "Missing Safari-compatible Ruffle core"
+[[ -f "$BUILD_DIR/ruffle/72a20ef1c0b8ceb37720.wasm" ]] || die "Missing Safari-compatible Ruffle WASM"
 
 # Catch the most common mistake: editing source but forgetting to update build/.
 SYNC_PAIRS=(

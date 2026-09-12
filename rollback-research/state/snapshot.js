@@ -123,6 +123,7 @@
       if (!wasm?.__rollback_skip_render) throw new Error('The pinned render-block patch is unavailable');
       wasm.__rollback_skip_render.value = value ? 1 : 0;
     },
+    canSkipRender() { return !!wasm?.__rollback_skip_render; },
     registerParticipant(name, hooks) {
       if (snapshots.size || participants.has(name)) throw new Error('Register each participant once, before the first snapshot');
       participants.set(name, hooks);

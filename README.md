@@ -15,6 +15,7 @@ Browser-based multiplayer for the original **Gun Mayhem** Flash game. Each playe
 - State verification, reconnect handling, room ownership, and private invitation links
 - Built-in performance spike recorder for field diagnostics
 - Multi-touch controls and a landscape fullscreen layout for mobile devices
+- Modern and scalar WebAssembly runtime paths for current and older Safari versions
 
 The VPS does not render the game or transmit video. It orders compact input messages into authoritative frame rows. Every browser advances its own copy of the SWF with the same frame, input, and random state.
 
@@ -68,12 +69,13 @@ Useful commands:
 | `npm run build` | Generate the deployable server, client, patched Ruffle runtime, and assets |
 | `npm test` | Run server, lockstep, memory, audio, and WebGL tests |
 | `npm run test:mobile` | Run the two-client mobile layout and multi-touch input smoke test |
+| `npm run test:mobile:fallback` | Run the mobile test through Ruffle's scalar WebAssembly fallback |
 | `npm run test:network` | Run a multi-browser synchronization test against a local server |
 | `npm run build:swf` | Rebuild the network-enabled SWF with JPEXS FFDec 26.2.1 and a JDK |
 
 The normal JavaScript build uses the checked-in network-enabled SWF. Rebuilding that SWF requires a legally obtained original `gunmayhem.swf`; set `FFDEC_JAR` to the JPEXS FFDec 26.2.1 JAR. The build verifies every non-script SWF tag byte for byte.
 
-The browser tests require Playwright Chromium. Install it with `npx playwright install chromium`, start `npm run start:prepared` in one terminal, and run `npm run test:mobile` or `npm run test:network` in another. `GM_NETWORK_CLIENTS`, `GM_NETWORK_DELAYS`, and `GM_NETWORK_SECONDS` configure the network test's player count, per-client one-way delay, and duration.
+The browser tests require Playwright Chromium. Install it with `npx playwright install chromium`, start `npm run start:prepared` in one terminal, and run `npm run test:mobile`, `npm run test:mobile:fallback`, or `npm run test:network` in another. Set `GM_BROWSER_ENGINE=webkit` for the mobile smoke test when Playwright WebKit is installed. `GM_NETWORK_CLIENTS`, `GM_NETWORK_DELAYS`, and `GM_NETWORK_SECONDS` configure the network test's player count, per-client one-way delay, and duration.
 
 See [Contributing](CONTRIBUTING.md) for the validation workflow and [Deployment](docs/DEPLOYMENT.md) for a systemd/Caddy setup.
 

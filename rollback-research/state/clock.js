@@ -52,9 +52,10 @@
       timestamp = frame * (1000 / fps) + 0.001;
       const info = { frame, timestamp, replay };
       globalThis.RuffleRollback.beforeTick(info);
-      if (options && 'render' in options) globalThis.RuffleRollback.setRenderSkipped(!options.render);
+      const controlsRender=options&&'render' in options&&globalThis.RuffleRollback.canSkipRender();
+      if (controlsRender) globalThis.RuffleRollback.setRenderSkipped(!options.render);
       try { drain(); }
-      finally { if (options && 'render' in options) globalThis.RuffleRollback.setRenderSkipped(false); }
+      finally { if (controlsRender) globalThis.RuffleRollback.setRenderSkipped(false); }
       globalThis.RuffleRollback.afterTick(info);
       return frame;
     },

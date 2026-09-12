@@ -2,6 +2,7 @@
 const fs=require('node:fs');
 const path=require('node:path');
 const {patchCore,patchWasm,CORE_FILE,WASM_FILE}=require('./state/patch.cjs');
+const FALLBACK_CORE_FILE='core.ruffle.f000070ea72f8ae4fe3a.js',FALLBACK_WASM_FILE='72a20ef1c0b8ceb37720.wasm';
 const source=path.resolve(__dirname,'../public'),build=path.join(__dirname,'build'),output=path.join(build,'public'),vendor=path.join(build,'ruffle');
 const project=JSON.parse(fs.readFileSync(path.resolve(__dirname,'../package.json')));
 fs.rmSync(output,{recursive:true,force:true});fs.rmSync(vendor,{recursive:true,force:true});
@@ -12,7 +13,7 @@ fs.writeFileSync(path.join(build,'package.json'),JSON.stringify({
  name:'gun-mayhem-lockstep-server',version:project.version,private:true,type:'commonjs',main:'server.js',dependencies:{ws:project.dependencies.ws}
 },null,2)+'\n');
 for(const file of ['index.html','style.css','gunmayhem-net.swf'])fs.copyFileSync(path.join(source,file),path.join(output,file));
-for(const file of ['ruffle.js',CORE_FILE,WASM_FILE,'LICENSE_APACHE','LICENSE_MIT']){
+for(const file of ['ruffle.js',CORE_FILE,WASM_FILE,FALLBACK_CORE_FILE,FALLBACK_WASM_FILE,'LICENSE_APACHE','LICENSE_MIT']){
  let data=fs.readFileSync(path.resolve(__dirname,'../node_modules/@ruffle-rs/ruffle',file));
  if(file===CORE_FILE)data=Buffer.from(patchCore(data.toString()));
  if(file===WASM_FILE)data=patchWasm(data);

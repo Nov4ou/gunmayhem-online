@@ -1,6 +1,6 @@
 {
   "name": "gun-mayhem-lockstep-netplay",
-  "version": "0.19.0",
+  "version": "0.19.1",
   "description": "Browser-based Last Man Standing netplay for the original Gun Mayhem SWF, powered by Ruffle and authoritative input lockstep.",
   "main": "rollback-research/build/server.js",
   "scripts": {
@@ -9,6 +9,7 @@
     "start:prepared": "node rollback-research/build/server.js",
     "test": "node --test rollback-research/netcode/server.test.cjs rollback-research/netcode/rollback-inputs.test.cjs rollback-research/pages.test.cjs rollback-research/effects/audio.test.cjs rollback-research/effects/webgl-compact.test.cjs",
     "test:mobile": "node rollback-research/mobile-smoke.cjs",
+    "test:mobile:fallback": "GM_RUFFLE_FALLBACK=1 node rollback-research/mobile-smoke.cjs",
     "test:network": "node rollback-research/network-test.cjs",
     "build:swf": "python3 rollback-research/state/build-fast.py"
   },
