@@ -1,0 +1,4 @@
+* text=auto eol=lf
+*.swf binary
+*.wasm binary
+*.png binary

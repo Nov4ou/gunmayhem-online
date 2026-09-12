@@ -1,0 +1,315 @@
+{
+  "shirts": [
+    {
+      "id": 1,
+      "name": "Shirtless"
+    },
+    {
+      "id": 2,
+      "name": "White Suit"
+    },
+    {
+      "id": 3,
+      "name": "Gray Suit"
+    },
+    {
+      "id": 4,
+      "name": "Professional Killer"
+    },
+    {
+      "id": 5,
+      "name": "Fancy Tux"
+    },
+    {
+      "id": 6,
+      "name": "Leather Jacket"
+    },
+    {
+      "id": 7,
+      "name": "Pompous Shirt"
+    },
+    {
+      "id": 8,
+      "name": "Pirate"
+    },
+    {
+      "id": 9,
+      "name": "Kung Fu Master"
+    },
+    {
+      "id": 10,
+      "name": "Caveman"
+    },
+    {
+      "id": 11,
+      "name": "Santa Claus"
+    },
+    {
+      "id": 12,
+      "name": "Exterminator"
+    },
+    {
+      "id": 13,
+      "name": "Jumpsuit"
+    },
+    {
+      "id": 14,
+      "name": "Rambo"
+    },
+    {
+      "id": 15,
+      "name": "Hawaiian"
+    }
+  ],
+  "hats": [
+    {
+      "id": 1,
+      "name": "Too Cool For Hats"
+    },
+    {
+      "id": 2,
+      "name": "Mohawk"
+    },
+    {
+      "id": 3,
+      "name": "Santa Claus"
+    },
+    {
+      "id": 4,
+      "name": "White Fedora"
+    },
+    {
+      "id": 5,
+      "name": "Dark Gray Fedora"
+    },
+    {
+      "id": 6,
+      "name": "Fancy Top Hat"
+    },
+    {
+      "id": 7,
+      "name": "Caveman"
+    },
+    {
+      "id": 8,
+      "name": "Crazy Clown"
+    },
+    {
+      "id": 9,
+      "name": "Pylon Hat"
+    },
+    {
+      "id": 10,
+      "name": "Straw Hat"
+    },
+    {
+      "id": 11,
+      "name": "Pompous Hat"
+    },
+    {
+      "id": 12,
+      "name": "Viking Helmet"
+    },
+    {
+      "id": 13,
+      "name": "Rambo"
+    },
+    {
+      "id": 14,
+      "name": "Spikey Helmet"
+    },
+    {
+      "id": 15,
+      "name": "ARRRRRRGH!"
+    },
+    {
+      "id": 16,
+      "name": "Goldfish Bowl"
+    },
+    {
+      "id": 17,
+      "name": "Bunny Ears"
+    },
+    {
+      "id": 18,
+      "name": "Army Helmet"
+    },
+    {
+      "id": 19,
+      "name": "The Duke"
+    },
+    {
+      "id": 20,
+      "name": "Pot Head"
+    },
+    {
+      "id": 21,
+      "name": "Slick Hair"
+    },
+    {
+      "id": 22,
+      "name": "Female Hair"
+    },
+    {
+      "id": 23,
+      "name": "The Very Best"
+    },
+    {
+      "id": 24,
+      "name": "Crown"
+    }
+  ],
+  "guns": [
+    {
+      "id": 1,
+      "name": "COOL PISTOL"
+    },
+    {
+      "id": 2,
+      "name": "SAND HAWK"
+    },
+    {
+      "id": 3,
+      "name": "SINE PISTOL"
+    },
+    {
+      "id": 4,
+      "name": "ANGRY COW"
+    },
+    {
+      "id": 5,
+      "name": "FIFTY EIGHT"
+    },
+    {
+      "id": 6,
+      "name": "SNAKE"
+    }
+  ],
+  "perks": [
+    {
+      "id": 1,
+      "name": "I Don't Need Perks",
+      "availableInFreshLocalSave": true
+    },
+    {
+      "id": 2,
+      "name": "Weightless Guns",
+      "availableInFreshLocalSave": true
+    },
+    {
+      "id": 3,
+      "name": "Triple Jump",
+      "availableInFreshLocalSave": false
+    },
+    {
+      "id": 4,
+      "name": "Minigun Maniac",
+      "availableInFreshLocalSave": true
+    },
+    {
+      "id": 5,
+      "name": "No Recoil",
+      "availableInFreshLocalSave": true
+    },
+    {
+      "id": 6,
+      "name": "Cancel Explosive Force",
+      "availableInFreshLocalSave": false
+    },
+    {
+      "id": 7,
+      "name": "+33% More Ammo",
+      "availableInFreshLocalSave": true
+    },
+    {
+      "id": 8,
+      "name": "+2 Extra Nades",
+      "availableInFreshLocalSave": true
+    },
+    {
+      "id": 9,
+      "name": "Random Gun at Spawn",
+      "availableInFreshLocalSave": false
+    }
+  ],
+  "maps": [
+    {
+      "id": 1,
+      "name": "No Name",
+      "thumbnail": "research/map-thumbnails/DefineSprite_1230/1.png"
+    },
+    {
+      "id": 2,
+      "name": "Dessert Duel",
+      "thumbnail": "research/map-thumbnails/DefineSprite_1230/2.png"
+    },
+    {
+      "id": 3,
+      "name": "Underwater Slaughter",
+      "thumbnail": "research/map-thumbnails/DefineSprite_1230/3.png"
+    },
+    {
+      "id": 4,
+      "name": "Solar Shootout",
+      "thumbnail": "research/map-thumbnails/DefineSprite_1230/4.png"
+    },
+    {
+      "id": 5,
+      "name": "Great Wall Brawl",
+      "thumbnail": "research/map-thumbnails/DefineSprite_1230/5.png"
+    },
+    {
+      "id": 6,
+      "name": "Magic Mushroom Mountain Melee",
+      "thumbnail": "research/map-thumbnails/DefineSprite_1230/6.png"
+    },
+    {
+      "id": 7,
+      "name": "Desert Destruction",
+      "thumbnail": "research/map-thumbnails/DefineSprite_1230/7.png"
+    },
+    {
+      "id": 8,
+      "name": "Hovering Houses",
+      "thumbnail": "research/map-thumbnails/DefineSprite_1230/8.png"
+    },
+    {
+      "id": 9,
+      "name": "Midnight Wood",
+      "thumbnail": "research/map-thumbnails/DefineSprite_1230/9.png"
+    },
+    {
+      "id": 10,
+      "name": "Polar Pwnage",
+      "thumbnail": "research/map-thumbnails/DefineSprite_1230/10.png"
+    },
+    {
+      "id": 11,
+      "name": "Grim City",
+      "thumbnail": "research/map-thumbnails/DefineSprite_1230/11.png"
+    },
+    {
+      "id": 12,
+      "name": "Safari Showdown",
+      "thumbnail": "research/map-thumbnails/DefineSprite_1230/12.png"
+    }
+  ],
+  "defaults": {
+    "colors": [
+      2,
+      5,
+      8,
+      10
+    ],
+    "shirt": 1,
+    "hat": 1,
+    "gun": 1,
+    "perk": 7,
+    "lives": 10,
+    "def_quality": 2,
+    "qualityInGame": "MEDIUM",
+    "music": true,
+    "sound": true
+  },
+  "source": "Original SWF definitions and player setup selector button coordinates; resources.txt and original DoAction scripts."
+}

@@ -1,0 +1,5 @@
+# Replace this hostname with the domain that points to your server.
+game.example.com {
+	encode zstd gzip
+	reverse_proxy 127.0.0.1:3001
+}

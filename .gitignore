@@ -1,0 +1,11 @@
+.DS_Store
+node_modules/
+test-results/
+rollback-research/results/
+rollback-research/build/
+research/ffdec/
+research/decompiled/
+research/map-thumbnails/
+test/artifacts/
+*.class
+*.log

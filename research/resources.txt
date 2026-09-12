@@ -1,0 +1,529 @@
+TEXT 11 beat challenges to unlock new weapons and maps (co-op available)
+TEXT 12 play a custom game with up to 4 players!
+TEXT 13 view your collection of weapons
+TEXT 14 change game settings and controls
+TEXT 15 check out who made this game
+TEXT 16 visit the sponsor's website for more exciting games like this
+TEXT 19 GUN MAYHEM
+TEXT 21 CAMPAIGN
+TEXT 22 CUSTOM GAME
+TEXT 23 GUN LIBRARY
+TEXT 24 OPTIONS
+TEXT 25 CREDITS
+TEXT 26 MORE GAMES
+TEXT 29 Welcome to Gun Mayhem. Please check the options menu for controls.
+TEXT 31 Move Around using your movement keys.
+TEXT 33 To double jump, press the jump key while in the air.
+TEXT 35 To shoot, press the shoot button. To Throw bombs, press the bomb button.
+TEXT 37 Drop down from a platform by pressing down.
+TEXT 39 Kill the dummy 3 times to win.
+TEXT 50 1
+TEXT 53 Level 1: Tutorial
+TEXT 54 2
+TEXT 57 Level 2: Easy Win
+TEXT 58 3
+TEXT 61 Level 3: Gun Game
+TEXT 62 4
+TEXT 65 Level 4: Seeing Double
+TEXT 66 5
+TEXT 69 BOSS 1: Dynamite Dodge
+TEXT 70 6
+TEXT 73 Level 6: Double Team
+TEXT 74 7
+TEXT 77 Level 7: Unfair Advantage
+TEXT 78 8
+TEXT 81 Level 8: One Hit One Kill
+TEXT 82 9
+TEXT 85 Level 9: The Ghost
+TEXT 86 10
+TEXT 89 BOSS 2: Minigun Maniac
+TEXT 93 Completed
+TEXT 119 88
+TEXT 121 Loading
+TEXT 139 programmed by
+TEXT 140 K
+TEXT 141 E
+TEXT 142 V
+TEXT 143 I
+TEXT 144 N
+TEXT 145 G
+TEXT 146 U
+TEXT 149 +100
+TEXT 150 +200
+TEXT 151 CHEAPSHOT
+TEXT 152 +300
+TEXT 153 GREEDY KILL
+TEXT 154 +50
+TEXT 155 XPLOSIV KILL
+TEXT 156 LEVEL
+TEXT 157 1
+TEXT 158 1-UP
+TEXT 160 HIT
+TEXT 161 HIT
+TEXT 162 HIT
+TEXT 165 CLASSIC ASSAULT RIFLE
+TEXT 284 POWERUP NAME
+TEXT 285 EXTRA LIFE
+TEXT 286 INVISIBILITY
+TEXT 287 SHIELD
+TEXT 288 JET PACK!
+TEXT 289 DOUBLE TEAM
+TEXT 290 SPEED BOOST
+TEXT 291 MINIMIZE
+TEXT 329 You've Failed
+TEXT 358 Team A WINS
+TEXT 359 Team B WINS
+TEXT 362 WAVE
+TEXT 363 1
+TEXT 384 ASDFASDFASDF
+TEXT 385 ASDFASDFASDF
+TEXT 386 ASDFASDFASDF
+TEXT 387 ASDFASDFASDF
+TEXT 389 N
+TEXT 390 ASDFASDFASDF
+TEXT 391 ASDFASDFASDF
+TEXT 392 CHEAPSHOT&apos;d
+TEXT 393 ASDFASDFASDF
+TEXT 394 ASDFASDFASDF
+TEXT 395 EXPLODED
+TEXT 396 ASDFASDFASDF
+TEXT 397 ASDFASDFASDF
+TEXT 398 GREEDYKILLED
+TEXT 400 12
+TEXT 401 WAVE:
+TEXT 402 12
+TEXT 403 DUCKS LEFT:
+TEXT 404 12
+TEXT 405 TOTAL KILLS:
+TEXT 627 GAME PAUSED
+TEXT 631 Resume Game
+TEXT 632 exit game
+TEXT 647 1234
+TEXT 650 WINNER
+TEXT 651 FLAWLESS
+TEXT 652 Almost FLAWLESS :(
+TEXT 682 COOL_DUDE
+TEXT 683 COOL_DUDE
+TEXT 684 COOL_DUDE
+TEXT 718 X2
+TEXT 793 Back
+TEXT 794 CAMPAIGN
+TEXT 801 TEAM
+TEXT 802 A
+TEXT 803 B
+TEXT 807 SHIRT
+TEXT 808 BACK
+INSTANCE sprite811 frame 1 shirt -> 224 frames=32
+INSTANCE sprite813 frame 1 hat -> 269 frames=33
+TEXT 814 NEXT PAGE
+INSTANCE sprite817 frame 1 gundisplay -> 816 frames=6
+TEXT 818 HANDGUN
+TEXT 820 NO PERKS
+TEXT 821 SPEED+
+TEXT 822 JUMP+ 
+TEXT 823 MINI GUN
+TEXT 824 NO RECOIL
+TEXT 825 BLAST SHIELD
+TEXT 826 EXTRA AMMO 
+TEXT 827 EXTRA NADES
+TEXT 828 GUN SPAWN
+INSTANCE sprite831 frame 1 perkdisplay -> 830 frames=10
+TEXT 832 PERKS
+INSTANCE sprite833 frame 1 hat -> 269 frames=33
+TEXT 834 PREVIOUS PAGE
+CHOICE sprite835 frame 1 sprite 811 x=12.0 y=415.0
+CHOICE sprite835 frame 1 sprite 811 x=73.0 y=415.0
+CHOICE sprite835 frame 1 sprite 811 x=134.0 y=415.0
+CHOICE sprite835 frame 1 sprite 811 x=12.0 y=475.55
+CHOICE sprite835 frame 1 sprite 811 x=73.0 y=475.55
+CHOICE sprite835 frame 1 sprite 811 x=134.0 y=475.55
+CHOICE sprite835 frame 1 sprite 811 x=12.0 y=536.1
+CHOICE sprite835 frame 1 sprite 811 x=73.0 y=536.1
+CHOICE sprite835 frame 1 sprite 811 x=134.0 y=536.1
+CHOICE sprite835 frame 1 sprite 811 x=12.0 y=596.65
+CHOICE sprite835 frame 1 sprite 811 x=73.0 y=596.65
+CHOICE sprite835 frame 1 sprite 811 x=134.0 y=596.65
+CHOICE sprite835 frame 1 sprite 811 x=12.0 y=657.2
+CHOICE sprite835 frame 1 sprite 811 x=73.0 y=657.2
+CHOICE sprite835 frame 1 sprite 811 x=134.0 y=657.2
+CHOICE sprite835 frame 2 sprite 813 x=12.0 y=415.0
+CHOICE sprite835 frame 2 sprite 813 x=73.0 y=415.0
+CHOICE sprite835 frame 2 sprite 813 x=134.0 y=415.0
+CHOICE sprite835 frame 2 sprite 813 x=12.0 y=475.55
+CHOICE sprite835 frame 2 sprite 813 x=73.0 y=475.55
+CHOICE sprite835 frame 2 sprite 813 x=134.0 y=475.55
+CHOICE sprite835 frame 2 sprite 813 x=12.0 y=536.1
+CHOICE sprite835 frame 2 sprite 813 x=73.0 y=536.1
+CHOICE sprite835 frame 2 sprite 813 x=134.0 y=536.1
+CHOICE sprite835 frame 2 sprite 813 x=12.0 y=596.65
+CHOICE sprite835 frame 2 sprite 813 x=73.0 y=596.65
+CHOICE sprite835 frame 2 sprite 813 x=134.0 y=596.65
+CHOICE sprite835 frame 3 sprite 817 x=12.0 y=475.0
+CHOICE sprite835 frame 3 sprite 817 x=73.0 y=475.0
+CHOICE sprite835 frame 3 sprite 817 x=134.0 y=475.0
+CHOICE sprite835 frame 3 sprite 817 x=12.0 y=535.55
+CHOICE sprite835 frame 3 sprite 817 x=73.0 y=535.55
+CHOICE sprite835 frame 3 sprite 817 x=134.0 y=536.0
+CHOICE sprite835 frame 4 sprite 831 x=12.0 y=475.0
+CHOICE sprite835 frame 4 sprite 831 x=73.0 y=475.0
+CHOICE sprite835 frame 4 sprite 831 x=134.0 y=475.0
+CHOICE sprite835 frame 4 sprite 831 x=12.0 y=535.55
+CHOICE sprite835 frame 4 sprite 831 x=73.0 y=535.55
+CHOICE sprite835 frame 4 sprite 831 x=134.0 y=535.55
+CHOICE sprite835 frame 4 sprite 831 x=12.0 y=597.55
+CHOICE sprite835 frame 4 sprite 831 x=73.0 y=597.55
+CHOICE sprite835 frame 4 sprite 831 x=134.0 y=597.55
+CHOICE sprite835 frame 5 sprite 833 x=12.0 y=415.0
+CHOICE sprite835 frame 5 sprite 833 x=73.0 y=415.0
+CHOICE sprite835 frame 5 sprite 833 x=134.0 y=415.0
+CHOICE sprite835 frame 5 sprite 833 x=12.0 y=475.55
+CHOICE sprite835 frame 5 sprite 833 x=73.0 y=475.55
+CHOICE sprite835 frame 5 sprite 833 x=134.0 y=475.55
+CHOICE sprite835 frame 5 sprite 833 x=12.0 y=536.1
+CHOICE sprite835 frame 5 sprite 833 x=73.0 y=536.1
+CHOICE sprite835 frame 5 sprite 833 x=134.0 y=536.1
+CHOICE sprite835 frame 5 sprite 833 x=12.0 y=596.65
+CHOICE sprite835 frame 5 sprite 833 x=73.0 y=596.65
+CHOICE sprite835 frame 5 sprite 833 x=134.0 y=596.65
+TEXT 836 HAT
+TEXT 837 Too Cool For Hats
+TEXT 838 HANDGUN
+TEXT 839 PERK
+TEXT 840 NAME:
+TEXT 841 ADD PLAYER 2
+TEXT 842 SLOT EMPTY
+TEXT 843 ADD COOP PARTNER
+TEXT 845 CLEAR SLOT
+INSTANCE sprite851 frame 1 shirt -> 224 frames=32
+INSTANCE sprite851 frame 1 hat -> 269 frames=33
+INSTANCE sprite851 frame 1 gundisplay -> 816 frames=6
+TEXT 852 PLAYER_NAME
+TEXT 854 COLOR
+INSTANCE sprite857 frame 2 perkdisplay -> 830 frames=10
+TEXT 860 Level 1: Tutorial
+TEXT 861 Map: Testing Room
+TEXT 862 Learn the basics of the game.
+TEXT 864 Level 2: Easy Win
+TEXT 865 Map: Safari Showdown
+TEXT 866 Face off against a single AI opponent.
+TEXT 868 Level 3: Gun Game
+TEXT 869 Map: Polar Pwnage
+TEXT 870 Level up your gun by killing your opponent. First kill on level 15 wins.
+TEXT 872 Level 4: Seeing Double
+TEXT 873 Map: Hovering Houses
+TEXT 874 Just a simple one on one. Or is it?
+TEXT 876 BOSS 1: Dynamite Dodge
+TEXT 877 Map: Great Wall Brawl
+TEXT 878 Defeat your opponent, but mind the falling dynamite! P.S. Your opponent is resistant to dynamites :)
+TEXT 880 Level 6: Double Team
+TEXT 881 Map: Grim City
+TEXT 882 Face off against 2 AI opponents.
+TEXT 884 Level 7: Unfair Advantage
+TEXT 885 Map: Dessert Duel
+TEXT 886 Your opponent has a recharging jetpack.
+TEXT 888 Level 8: One Hit One Kill
+TEXT 889 Map: Underwater Slaughter
+TEXT 890 Defeat your opponent using the most powerful gun in the game.
+TEXT 892 Level 9: The Ghost
+TEXT 893 Map: No Name
+TEXT 894 Put your perception skills to the test.
+TEXT 896 BOSS 2: Minigun Maniac
+TEXT 897 Map: Desert Destruction
+TEXT 898 The final test. Only the best will win.
+TEXT 903 Start Level
+TEXT 905 At least 1 player must be active
+TEXT 909 New Unlocks:
+TEXT 910 Continue
+TEXT 914 Antique SMG
+TEXT 915 Rapid Sniper
+TEXT 916 Level 1 Completed
+TEXT 917 Anti Aircraft Gun
+TEXT 918 Futuristic Assault Rifle
+TEXT 919 Perk: Triple Jump
+TEXT 920 Level 2 Completed
+TEXT 921 Compact Assault Rifle
+TEXT 922 Stealth Sniper
+TEXT 923 Level 3 Completed
+TEXT 924 Assault Shotgun
+TEXT 925 Hi-Power Rifle
+TEXT 926 Level 4 Completed
+TEXT 927 Advanced SMG
+TEXT 928 Rugged Sniper
+TEXT 929 Perk: Blast Shield
+TEXT 930 Level 5 Completed
+TEXT 931 Hunting Shotgun
+TEXT 932 Top Load Machine Gun
+TEXT 933 Perk: Gun Spawn
+TEXT 934 Level 6 Completed
+TEXT 935 Micro SMG
+TEXT 936 American Sniper
+TEXT 937 Level 7 Completed
+TEXT 938 Futuristic Shotgun
+TEXT 939 Military Machine Gun
+TEXT 940 Level 8 Completed
+TEXT 941 Old SMG
+TEXT 942 Lever Sniper
+TEXT 943 Level 9 Completed
+TEXT 944 Stubby Shotgun
+TEXT 945 Bullpup Machine Gun
+TEXT 946 Level 10 Completed
+TEXT 951 Player 1
+TEXT 952 Player 2
+TEXT 953 Player 3
+TEXT 954 Player 4
+TEXT 960 W
+TEXT 966 JUMP
+TEXT 967 RIGHT
+TEXT 968 LEFT
+TEXT 969 DOWN
+TEXT 970 SHOOT
+TEXT 971 BOMB
+TEXT 974 OPTIONS
+TEXT 975 MUSIC
+TEXT 976 SOUND FX
+TEXT 977 QUALITY
+TEXT 978 medium recommended
+TEXT 983 ON
+TEXT 984 OFF
+TEXT 985 LOW
+TEXT 986 MEDIUM
+TEXT 987 HIGH
+TEXT 989 Press a Valid Key to Assign
+TEXT 993 Post Game Summary
+TEXT 994 Kills
+TEXT 995 Deaths
+TEXT 996 K/D Ratio
+TEXT 997 Shots Fired
+TEXT 998 Shots Hit
+TEXT 999 Accuracy
+TEXT 1000 Crates Collected
+TEXT 1001 Powerups
+TEXT 1002 Continue
+TEXT 1003 TOTAL POINTS
+TEXT 1005 Cool Dude
+TEXT 1007 89
+TEXT 1008 89
+TEXT 1009 89
+TEXT 1010 89
+TEXT 1011 89
+TEXT 1012 89
+TEXT 1013 89
+TEXT 1014 89
+TEXT 1015 89
+TEXT 1021 Art guy
+TEXT 1022 Arvin Eksiri
+TEXT 1023 Code / Design
+TEXT 1025 asdf (Aa, Bb, Cc){     qwer(zxcv);//qazqazqaz     tyui+=JKL     fdsa(12345)     {          asdfasdf     }}
+TEXT 1026 Testing
+TEXT 1027 TimmyFool
+TEXT 1028 CREDITS
+TEXT 1029 Lufas
+TEXT 1030 Arfizzy
+TEXT 1032 "I've got this in the bag"
+TEXT 1033 -no quote-
+TEXT 1034 "Get Owned!"
+TEXT 1035 "Don't touch the screen!"
+TEXT 1036 "I can finish drawing 20 maps in one week"(actual speed: 7 days per map on average)
+TEXT 1037 Kevin Gu
+TEXT 1038 Kevin Gu
+TEXT 1039 Kevin Gu
+TEXT 1041 Music
+TEXT 1042 Kevin MacLeod
+TEXT 1043 Kevin MacLeod
+TEXT 1044 Kevin MacLeod
+TEXT 1049 GUN LIBRARY
+TEXT 1050 BACK
+TEXT 1053 SMGs
+TEXT 1054 SNIPERS
+TEXT 1055 SHOTGUNS
+TEXT 1056 ARs/LMGs
+TEXT 1057 HANDGUNS
+TEXT 1058 SPECIAL
+TEXT 1062 TEST WEAPON
+TEXT 1064 Cool Pistol
+TEXT 1066 Sand Hawk
+TEXT 1068 Sine Pistol
+TEXT 1070 Angry Cow
+TEXT 1072 Fifty Eight
+TEXT 1074 Snake
+TEXT 1076 Nothing Selected
+TEXT 1078 Classic Assault Rifle
+TEXT 1080 Cool Sniper
+TEXT 1082 Short SMG
+TEXT 1084 Sawed Off Shotgun
+TEXT 1086 Military Sniper
+TEXT 1088 Fat Shotty
+TEXT 1090 Classic Sniper
+TEXT 1092 Compact Rifle
+TEXT 1094 Lever Shotgun
+TEXT 1096 Tactical SMG
+TEXT 1098 Bullpup Assault Rifle
+TEXT 1100 Compact SMG
+TEXT 1102 Mafia SMG
+TEXT 1104 Slick SMG
+TEXT 1106 Bullpup SMG
+TEXT 1108 Police SMG
+TEXT 1110 Loser SMG
+TEXT 1112 Light SMG
+TEXT 1114 Antique SMG
+TEXT 1116 Compact Assault Rifle
+TEXT 1118 Advanced SMG
+TEXT 1120 Micro SMG
+TEXT 1122 Old SMG
+TEXT 1124 Modern Sniper
+TEXT 1126 Hi-Power Sniper
+TEXT 1128 Bullpup Sniper
+TEXT 1130 Tactical Sniper
+TEXT 1132 Reliable Sniper
+TEXT 1134 Assassin Sniper
+TEXT 1136 Rapid Sniper
+TEXT 1138 Stealth Sniper
+TEXT 1140 Rugged Sniper
+TEXT 1142 American Sniper
+TEXT 1144 Lever Sniper
+TEXT 1146 Gangster Shotgun
+TEXT 1148 Tactical Shotgun
+TEXT 1150 Full Auto Shotgun
+TEXT 1152 Prototype Shotgun
+TEXT 1154 Average Shotgun
+TEXT 1156 Chrome Shotgun
+TEXT 1158 Anti Aircraft Gun
+TEXT 1160 Assault Shotgun
+TEXT 1162 Hunting Shotgun
+TEXT 1164 Futuristic Shotgun
+TEXT 1166 Stubby Shotgun
+TEXT 1167 MINIGUN
+TEXT 1169 Short Assault Rifle
+TEXT 1171 Classic Machine Gun
+TEXT 1173 Covert Assault Rifle
+TEXT 1175 Guerilla Assault Rifle
+TEXT 1177 Assault Carbine
+TEXT 1179 Long Range Rifle
+TEXT 1181 Futuristic Assault Rifle
+TEXT 1183 Hi-Power Rifle
+TEXT 1185 Top-Load Machine Gun
+TEXT 1187 Military Machine Gun
+TEXT 1189 Bullpup Machine Gun
+TEXT 1192 Damage
+TEXT 1193 Rate of Fire
+TEXT 1194 Ammo Capacity
+TEXT 1195 Weight
+TEXT 1196 Recoil
+TEXT 1201 START
+TEXT 1202 BACK
+TEXT 1203 NO NAME
+TEXT 1205 DESSERT DUEL
+TEXT 1207 UNDERWATER SLAUGHTER
+TEXT 1209 SOLAR SHOOTOUT
+TEXT 1212 GREAT WALL BRAWL
+TEXT 1214 MAGIC MUSHROOM MOUNTAIN MELEE
+TEXT 1217 DESERT DESTRUCTION
+TEXT 1219 HOVERING HOUSES
+TEXT 1221 MIDNIGHT WOOD
+TEXT 1224 POLAR PWNAGE
+TEXT 1225 GRIM CITY
+TEXT 1227 SAFARI SHOWDOWN
+MAPTEXT frame 1 [NO NAME]
+MAPTEXT frame 2 [DESSERT DUEL]
+MAPTEXT frame 3 [UNDERWATER SLAUGHTER]
+MAPTEXT frame 4 [SOLAR SHOOTOUT]
+MAPTEXT frame 5 [GREAT WALL BRAWL]
+MAPTEXT frame 6 [MAGIC MUSHROOM , MOUNTAIN MELEE]
+MAPTEXT frame 7 [DESERT DESTRUCTION]
+MAPTEXT frame 8 [HOVERING HOUSES]
+MAPTEXT frame 9 [MIDNIGHT WOOD]
+MAPTEXT frame 10 [POLAR PWNAGE]
+MAPTEXT frame 11 [GRIM CITY]
+MAPTEXT frame 12 [SAFARI SHOWDOWN]
+TEXT 1231 CONTINUE
+TEXT 1232 MAP SELECTION
+TEXT 1233 Safari Showdown
+TEXT 1234 Grim City
+TEXT 1235 Polar Pwnage
+TEXT 1236 Midnight Wood
+TEXT 1237 Hovering Houses
+TEXT 1238 GAME SETUP
+TEXT 1239 PLAYER SETUP
+TEXT 1241 Catch the Duck
+TEXT 1242 Hold on to the duck for as long as possible.
+TEXT 1243 10
+TEXT 1244 Lives
+TEXT 1246 Game Options
+TEXT 1247 You can pause the game at any time by pressing ESC or SPACE
+TEXT 1248 Duck Survival
+TEXT 1249 Play by yourself or with a friend. Survive for as long as possible. Random weapons can obtained through crates or the random weapon box.
+TEXT 1251 10
+TEXT 1252 Lives:
+TEXT 1253 Gun Game
+TEXT 1254 Kill your opponents to level up your weapon. First player to get a kill with all the weapons wins the game.
+TEXT 1256 Last Man Standing
+TEXT 1257 Same as last man standing, except players battle in teams.
+TEXT 1258 (Team Mode)
+TEXT 1260 10
+TEXT 1261 Crates
+TEXT 1262 Pickups
+TEXT 1266 1 Hit 1 Kill
+TEXT 1267 Given the most powerful gun in the game, eliminate your opponents. Be mindful of ammo consumption, as you are only given 5 shots per life.
+TEXT 1268 10
+TEXT 1269 Crates
+TEXT 1270 LAST MAN STANDING
+TEXT 1271 Free for all. Last player alive wins the game. Weapons are picked up in crates.
+TEXT 1272 10
+TEXT 1274 RANDOM
+TEXT 1275 Desert Destruction
+TEXT 1276 Magic Mushroom Mountain Melee
+TEXT 1277 Great Wall Brawl
+TEXT 1278 Solar Shootout
+TEXT 1279 Underwater Slaughter
+TEXT 1280 TO MENU
+TEXT 1281 Dessert Duel
+TEXT 1283 GAME MODES
+TEXT 1284 Last Man Standing
+TEXT 1285 Last Man Standing (Team mode)
+TEXT 1286 Duck Survival
+TEXT 1287 Gun Game
+TEXT 1288 1 Hit 1 Kill
+TEXT 1289 No Name
+TEXT 1291 LOADING
+TEXT 1292 LOADING
+TEXT 1294 Too Cool For Hats
+TEXT 1295 HUMAN PLAYER
+TEXT 1296 AI PLAYER
+TEXT 1297 SELECT A PLAYER TYPE
+TEXT 1298 PLAYER_NAME
+TEXT 1299 AI PLAYER
+INSTANCE sprite1302 frame 3 perkdisplay -> 830 frames=10
+TEXT 1306 At least 2 players must be active
+INSTANCE sprite1309 frame 1 mapdisplay -> 1230 frames=13
+INSTANCE sprite1309 frame 1 modedisplay -> 1273 frames=6
+TEXT 1368 TESTING LEVEL
+TEXT 1369 PRESS ESC/SPACE TO EXIT
+TEXT 1371 W
+TEXT 1374 The goal of the game is simple:KNOCK YOUR OPPONENTS OFF THE MAP!
+INSTANCE root frame 10 mapscene -> 1391 frames=1
+TEXT 1403 PRESS DOWN
+TEXT 1404 TO OPEN
+TEXT 1406 ?
+TEXT 1411 PRESS DOWN
+TEXT 1412 TO TAKE
+TEXT 1413 TO OPEN
+INSTANCE root frame 10 ground -> 1444 frames=13
+TEXT 1447 88
+TEXT 1449 LAST LIFE
+TEXT 1450 LAST LIFE
+TEXT 1452 GAME OVER
+TEXT 1454 LEVEL UP
+TEXT 1462 99
+TEXT 1463 12
+TEXT 1464 WEAPON NAME
+TEXT 1465 FLAWLESS
+TEXT 1467 ALMOST FLAWLESS
+TEXT 1469 BEYOND FLAWLESS
+TEXT 1472 PlayerName
+TEXT 1473 LIVES:
+TEXT 1474 LEVEL
+TEXT 1475 HEALTH
+TEXT 1481 3
+TEXT 1483 2
+TEXT 1485 1
+TEXT 1488 

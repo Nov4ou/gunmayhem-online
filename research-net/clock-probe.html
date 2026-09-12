@@ -1,0 +1,12 @@
+<!doctype html><html><head><meta charset="utf-8"><script src="/public/ruffle-clock.js"></script><script src="/node_modules/@ruffle-rs/ruffle/ruffle.js"></script></head><body>
+<div id="game" style="width:400px;height:400px"></div><script>
+window.ready=(async()=>{
+ const player=window.RufflePlayer.newest().createPlayer();window.player=player;
+ document.querySelector('#game').append(player);
+ window.traces=[];player.ruffle().traceObserver=t=>window.traces.push(t);
+ await player.ruffle().load({url:'/research-net/clock-probe.swf',autoplay:'on',unmuteOverlay:'hidden',splashScreen:false,allowScriptAccess:true,backgroundExecutionMode:'none',logLevel:'error'});
+ player.ruffle().traceObserver=t=>window.traces.push(t);
+ player.ruffle().resume();
+ return true;
+})();
+</script></body></html>

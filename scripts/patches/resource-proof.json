@@ -1,0 +1,13 @@
+{
+  "originalSHA256": "f85f970882bc6667749e219a13736c9ec21b8c9c24b8b72bfe272f33be4248f1",
+  "fastNetplaySHA256": "cb0a96d397899b17c70737e034309ced534aac2f405a3ea987140636081a386e",
+  "originalBridgeSHA256": "1103e6ff4a483a359f96714c37fa47a7b9c5e61cbf30cfa7149092d22af4b8fc",
+  "extensionSHA256": "82a1203ebad9e74536a947331cb8f7cde84d13ad94da23c5ffa94874006b888a",
+  "nonScriptTagsVerifiedByteForByte": 13757,
+  "nonScriptBytesVerified": 6094673,
+  "changedNonScriptTags": [],
+  "stageAndFrameRateUnchanged": true,
+  "originalNetStatePreserved": true,
+  "fps": 35,
+  "tool": "JPEXS FFDec 26.2.1"
+}
