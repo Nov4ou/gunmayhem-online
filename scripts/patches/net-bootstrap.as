@@ -106,7 +106,8 @@ _root.netStart = function(config)
    _root.gototest = false;
    _root.teamgame = false;
    _root.gamewin = false;
-   _root.gamemode = 1;
+   // Original custom-game mode numbers: 1 = Last Man Standing, 4 = Gun Game.
+   _root.gamemode = String(config.mode) == "gun-game" ? 4 : 1;
    _root.totallives = _root.__netInt(config.lives,10,1,99);
    _root.mapnumber = _root.__netInt(config.map,1,1,12);
    _root.crateON = true;

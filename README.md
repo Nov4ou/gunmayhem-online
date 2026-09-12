@@ -1,6 +1,6 @@
 # Gun Mayhem Online
 
-Browser-based multiplayer for the original **Gun Mayhem** Flash game. Each player runs the game locally through a pinned Ruffle build while a small Node.js server coordinates a deterministic Last Man Standing match for two to four players.
+Browser-based multiplayer for the original **Gun Mayhem** Flash game. Each player runs the game locally through a pinned Ruffle build while a small Node.js server coordinates deterministic Last Man Standing and Gun Game matches for two to four players.
 
 [Live demo](https://gunmayhem.nov4ou.top/)
 
@@ -8,7 +8,8 @@ Browser-based multiplayer for the original **Gun Mayhem** Flash game. Each playe
 
 - Two to four players on computers, phones, or tablets
 - Original graphics, animation, audio, maps, weapons, and 35 FPS simulation
-- Twelve Last Man Standing maps and configurable lives
+- Last Man Standing with configurable lives and the original 16-level Gun Game progression
+- Twelve original custom-game maps in both modes
 - Authoritative input lockstep with deterministic random state
 - One-frame input scheduling for two- and three-player matches; three frames for four players
 - Live WebSocket RTT and measured input-to-presentation latency
@@ -51,7 +52,7 @@ The production runtime uses server-finalized input lockstep. Clients send six-bi
 
 Two- and three-player matches schedule input one frame ahead. Four-player matches use three frames to absorb the additional network and browser scheduling variance. A local key edge can revise its pending future input before finalization, reducing the delay that would otherwise be added by polling at the game's 35 Hz frame rate.
 
-The SWF bridge supplies synchronized input and a deterministic random source. It also exposes lightweight state values used to detect divergence. The original game simulation remains inside the SWF; the networking layer does not reimplement physics, weapons, collision, rendering, or audio.
+The SWF bridge supplies synchronized input and a deterministic random source. It also exposes lightweight state values used to detect divergence. The original game simulation remains inside the SWF; the networking layer does not reimplement physics, weapons, collision, rendering, audio, or mode rules. In Gun Game, the original movie grants a new weapon after every kill and ends the match when a player reaches level 16.
 
 See [Architecture](docs/ARCHITECTURE.md) for protocol and runtime details.
 
@@ -75,7 +76,7 @@ Useful commands:
 
 The normal JavaScript build uses the checked-in network-enabled SWF. Rebuilding that SWF requires a legally obtained original `gunmayhem.swf`; set `FFDEC_JAR` to the JPEXS FFDec 26.2.1 JAR. The build verifies every non-script SWF tag byte for byte.
 
-The browser tests require Playwright Chromium. Install it with `npx playwright install chromium`, start `npm run start:prepared` in one terminal, and run `npm run test:mobile`, `npm run test:mobile:fallback`, or `npm run test:network` in another. Set `GM_BROWSER_ENGINE=webkit` for the mobile smoke test when Playwright WebKit is installed. `GM_NETWORK_CLIENTS`, `GM_NETWORK_DELAYS`, and `GM_NETWORK_SECONDS` configure the network test's player count, per-client one-way delay, and duration.
+The browser tests require Playwright Chromium. Install it with `npx playwright install chromium`, start `npm run start:prepared` in one terminal, and run `npm run test:mobile`, `npm run test:mobile:fallback`, or `npm run test:network` in another. Set `GM_BROWSER_ENGINE=webkit` for the mobile smoke test when Playwright WebKit is installed. Set `GM_GAME_MODE=gun-game` to exercise Gun Game. `GM_NETWORK_CLIENTS`, `GM_NETWORK_DELAYS`, and `GM_NETWORK_SECONDS` configure the network test's player count, per-client one-way delay, and duration.
 
 See [Contributing](CONTRIBUTING.md) for the validation workflow and [Deployment](docs/DEPLOYMENT.md) for a systemd/Caddy setup.
 

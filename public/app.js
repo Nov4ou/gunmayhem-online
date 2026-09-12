@@ -23,6 +23,7 @@ function hideSpikeButton(){if(spikeButton)spikeButton.hidden=true;}
 function browserDebugEvent(type,extra={}){runtime('debugEvent',{event:{type,wallMs:Date.now(),visibility:document.visibilityState,...extra}});}
 try { $('name').value = localStorage.getItem('gunmayhem-name') || 'Player'; } catch {}
 const mapNames=['No Name','Dessert Duel','Underwater Slaughter','Solar Shootout','Great Wall Brawl','Magic Mushroom Mountain Melee','Desert Destruction','Hovering Houses','Midnight Wood','Polar Pwnage','Grim City','Safari Showdown'];
+const modeNames={'last-man-standing':'LAST MAN STANDING','gun-game':'GUN GAME'};
 for (let i=1;i<=12;i++) $('map').add(new Option(`${i}. ${mapNames[i-1]}`,i));
 for (let i=1;i<=20;i++) $('lives').add(new Option(`${i}`,i));
 $('lives').value = '10';
@@ -122,10 +123,14 @@ function updateRoom(data) {
     for (const [cls,text] of [['player-number',`PLAYER ${i+1}`],['player-name',p.name],['player-meta',[p.id===myId?'You':'',p.id===data.host?'Host':''].filter(Boolean).join(' · ')||'Ready']]) {const span=document.createElement('span');span.className=cls;span.textContent=text;li.append(span);}
     return li;
   }));
-  $('map').value=data.settings.map; $('lives').value=data.settings.lives;
+  $('mode').value=data.settings.mode; $('map').value=data.settings.map; $('lives').value=data.settings.lives;
+  $('mode-title').textContent=modeNames[data.settings.mode]||'ONLINE MULTIPLAYER';
+  $('lives-setting').hidden=data.settings.mode==='gun-game';
+  document.querySelector('.touch-grenade').hidden=data.settings.mode==='gun-game';
+  $('grenade-help').hidden=data.settings.mode==='gun-game';
   const active=data.phase!=='lobby';
   document.body.classList.toggle('playing',active||showingResult);
-  $('map').disabled=$('lives').disabled=!host||active;
+  $('mode').disabled=$('map').disabled=$('lives').disabled=!host||active;
   $('start').disabled=!host||data.players.length<2||active;
   $('start').textContent=active?'Match in Progress':showingResult?'Play Again':'Start Match';
   $('stop').hidden=!host||!active;
@@ -154,7 +159,7 @@ function connect() {
     else if(data.type==='left') {const reason=runtimeError;runtimeError='';stopGame(reason);room=null;$('lobby').hidden=true;$('entrance').hidden=false;history.replaceState(null,'',location.pathname);}
     else if(data.type==='error') notice(data.message);
     else if(data.type==='load') {
-      hideSpikeButton();stopGame('');match=data.match;bootConfig={seed:data.seed,map:data.settings.map,lives:data.settings.lives,players:data.players};
+      hideSpikeButton();stopGame('');match=data.match;bootConfig={seed:data.seed,mode:data.settings.mode,map:data.settings.map,lives:data.settings.lives,players:data.players};
       $('play-section').hidden=false;document.body.classList.add('playing');setOverlay('Loading the original game…');$('match-status').textContent='Loading…';
       iframe=document.createElement('iframe');iframe.title='Original Gun Mayhem game';iframe.allow='autoplay; fullscreen';iframe.src='./runtime.html';$('game-mount').replaceChildren(iframe);
     }
@@ -206,7 +211,7 @@ $('leave').onclick=()=>{send('leave');stopGame('');room=null;$('lobby').hidden=t
 $('start').onclick=()=>{notice('');send('start');};
 $('stop').onclick=()=>send('stop');
 $('back').onclick=()=>{stopGame('');if(room)updateRoom(room);};
-for(const id of ['map','lives'])$(id).onchange=()=>send('settings',{map:Number($('map').value),lives:Number($('lives').value)});
+for(const id of ['mode','map','lives'])$(id).onchange=()=>send('settings',{mode:$('mode').value,map:Number($('map').value),lives:Number($('lives').value)});
 $('invite').onclick=async()=>{if(!room)return;const url=new URL(location.href);url.search=`?room=${room.room}`;try{await navigator.clipboard.writeText(url.href);notice('The invitation link has been copied. Share it with the other participants.');}catch{const input=document.createElement('input');input.value=url.href;document.body.append(input);input.select();const copied=document.execCommand('copy');input.remove();notice(copied?'The invitation link has been copied.':`Invitation link: ${url.href}`);}};
 $('sound').onclick=()=>{volume=volume?0:1;if(volume)unlockAudio();runtime('volume',{volume});$('sound').textContent=`Sound: ${volume?'Enabled':'Disabled'}`;};
 const touchCapable=('ontouchstart' in window)||matchMedia('(pointer:coarse)').matches;

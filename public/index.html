@@ -9,9 +9,9 @@
 </head>
 <body>
 <main>
-  <header><a class="brand" href="./">GUN<span>MAYHEM</span></a><span class="mode">LAST MAN STANDING</span><span id="connection" class="connection">Connecting…</span><span id="latency" class="latency" title="Round-trip time to the game server">Latency: measuring…</span></header>
+  <header><a class="brand" href="./">GUN<span>MAYHEM</span></a><span id="mode-title" class="mode">ONLINE MULTIPLAYER</span><span id="connection" class="connection">Connecting…</span><span id="latency" class="latency" title="Round-trip time to the game server">Latency: measuring…</span></header>
   <section id="entrance" class="entrance">
-    <div><p class="eyebrow">Original Flash Edition · Online Multiplayer for 2–4 Players</p><h1>Compete to Be the Last Player Standing.</h1><p class="intro">Create a private room and share the invitation link. Each participant plays from a separate computer, phone, or tablet in a synchronized match.</p></div>
+    <div><p class="eyebrow">Original Flash Edition · Online Multiplayer for 2–4 Players</p><h1>Original Gun Mayhem Modes, Synchronized Online.</h1><p class="intro">Create a private room and choose Last Man Standing or Gun Game. Each participant plays from a separate computer, phone, or tablet in a synchronized match.</p></div>
     <form id="room-form">
       <label for="name">Display Name</label><input id="name" maxlength="20" autocomplete="nickname" placeholder="Player" value="Player">
       <button id="create" type="button" class="primary">Create Room</button>
@@ -21,7 +21,7 @@
   <section id="lobby" hidden>
     <div class="room-bar"><div><span class="muted">Room</span> <strong id="room-title"></strong></div><button id="invite">Copy Invitation Link</button><button id="leave" class="quiet">Leave Room</button></div>
     <ol id="players" class="players"></ol>
-    <div class="settings"><label>Map <select id="map"></select></label><label>Lives <select id="lives"></select></label><button id="start" class="primary">Start Match</button><button id="stop" hidden>End Match</button><button id="back" hidden>Return to Lobby</button><span id="lobby-hint" class="muted"></span></div>
+    <div class="settings"><label>Mode <select id="mode"><option value="last-man-standing">Last Man Standing</option><option value="gun-game">Gun Game</option></select></label><label>Map <select id="map"></select></label><label id="lives-setting">Lives <select id="lives"></select></label><button id="start" class="primary">Start Match</button><button id="stop" hidden>End Match</button><button id="back" hidden>Return to Lobby</button><span id="lobby-hint" class="muted"></span></div>
   </section>
   <section id="play-section" hidden>
     <div class="play-bar"><strong id="seat-label"></strong><span id="match-status">Loading game…</span><button id="sound">Sound: Enabled</button><button id="fullscreen">Fullscreen</button></div>
@@ -44,7 +44,7 @@
     </div>
   </section>
   <p id="notice" class="notice" role="status" aria-live="polite"></p>
-  <footer><div><kbd>W A S D</kbd> / <kbd>↑ ← ↓ →</kbd> Move and Jump <span class="sep">·</span> <kbd>J</kbd> Fire <span class="sep">·</span> <kbd>K</kbd> Grenade</div><span class="muted">Touch controls appear automatically on mobile devices. Landscape orientation is recommended.</span></footer>
+  <footer><div><kbd>W A S D</kbd> / <kbd>↑ ← ↓ →</kbd> Move and Jump <span class="sep">·</span> <kbd>J</kbd> Fire <span id="grenade-help"><span class="sep">·</span> <kbd>K</kbd> Grenade</span></div><span class="muted">Touch controls appear automatically on mobile devices. Landscape orientation is recommended.</span></footer>
 </main>
 </body>
 </html>

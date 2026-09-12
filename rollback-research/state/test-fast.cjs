@@ -8,8 +8,9 @@ const root = path.resolve(__dirname, '../..');
 const frames = Number(process.env.GM_FAST_FRAMES || 350);
 const maps = (process.env.GM_FAST_MAPS || '1,6,12').split(',').map(Number);
 const html = `<!doctype html><meta charset="utf-8">
-<script src="/public/ruffle-clock.js"></script>
-<script src="/rollback-research/state/check-state.js"></script>
+<script src="/rollback-research/build/public/snapshot.js"></script>
+<script src="/rollback-research/build/public/ruffle-clock.js"></script>
+<script src="/rollback-research/build/public/check-state.js"></script>
 <script>window.RufflePlayer={config:{autoplay:'on',unmuteOverlay:'hidden',splashScreen:false,contextMenu:'off',allowScriptAccess:true,openUrlMode:'deny',warnOnUnsupportedContent:false}};</script>
 <script src="/node_modules/@ruffle-rs/ruffle/ruffle.js"></script>
 <style>html,body,#game,ruffle-player{margin:0;width:100%;height:100%;display:block}</style><div id="game"></div>
@@ -54,28 +55,29 @@ function canonical(value) {
   return value;
 }
 (async () => {
-  const report = { frames, maps, samples: [], errors: [] };
+  const report = { frames, maps, modes: ['last-man-standing', 'gun-game'], samples: [], errors: [] };
   const server = http.createServer(serve);
   await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
   const browser = await chromium.launch({ headless: true, executablePath: process.env.GM_BROWSER_BIN || undefined, args: ['--autoplay-policy=no-user-gesture-required'] });
   try {
-    for (const map of maps) {
+    for (const map of maps) for (const mode of report.modes) {
       const context = await browser.newContext({ viewport: { width: 900, height: 600 } });
       const page = await context.newPage();
       page.on('pageerror', error => report.errors.push(String(error)));
       try {
         await page.goto('http://127.0.0.1:' + server.address().port + '/test');
         await page.evaluate(() => loaded);
-        await page.evaluate(map => call('netStart', { map, players: 4, lives: 99, seed: 15481,
-          profiles: [{ name: '中文🚀Player' }, { name: 'Åé🙂' }, { name: '三号' }, { name: 'Four' }] }), map);
+        await page.evaluate(({map,mode}) => call('netStart', { map, mode, players: 4, lives: 99, seed: 15481,
+          profiles: [{ name: '中文🚀Player' }, { name: 'Åé🙂' }, { name: '三号' }, { name: 'Four' }] }), {map,mode});
         for (let start = 1; start <= frames; start += 35) {
           const end = Math.min(start + 34, frames);
           const inputs = Array.from({ length: end - start + 1 }, (_, i) => [start + i, masks(start + i)]);
           const sample = await page.evaluate(inputs => run(inputs), inputs);
-          assert.deepEqual(canonical(sample.fast), canonical(sample.original), `Map ${map} frame ${end}: fast checksum/result changed`);
-          assert.deepEqual(canonical(sample.originalAfter), canonical(sample.original), `Map ${map} frame ${end}: original netState was altered`);
+          assert.equal(sample.original.mode, mode === 'gun-game' ? 4 : 1, `Map ${map}: wrong native mode`);
+          assert.deepEqual(canonical(sample.fast), canonical(sample.original), `Mode ${mode} map ${map} frame ${end}: fast checksum/result changed`);
+          assert.deepEqual(canonical(sample.originalAfter), canonical(sample.original), `Mode ${mode} map ${map} frame ${end}: original netState was altered`);
           const { original, fast, originalAfter, ...timings } = sample;
-          report.samples.push({ map, frame: end, checksum: original.checksum, entities: original.entities, ...timings });
+          report.samples.push({ mode, map, frame: end, checksum: original.checksum, entities: original.entities, ...timings });
           if (end === frames) console.log('MATCH', JSON.stringify(report.samples.at(-1)));
         }
       } finally { await context.close(); }

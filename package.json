@@ -1,7 +1,7 @@
 {
   "name": "gun-mayhem-lockstep-netplay",
-  "version": "0.19.1",
-  "description": "Browser-based Last Man Standing netplay for the original Gun Mayhem SWF, powered by Ruffle and authoritative input lockstep.",
+  "version": "0.20.0",
+  "description": "Browser-based Last Man Standing and Gun Game netplay for the original Gun Mayhem SWF, powered by Ruffle and authoritative input lockstep.",
   "main": "rollback-research/build/server.js",
   "scripts": {
     "build": "node rollback-research/prepare.cjs",

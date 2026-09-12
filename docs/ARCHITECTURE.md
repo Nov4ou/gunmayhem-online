@@ -19,6 +19,8 @@ Keyboard and multi-touch controls both produce this same mask. Touch input there
 
 The ActionScript bridge overrides the input lookup used by the game and supplies a seeded Park-Miller random stream. This gives every client the same input and random value at the same simulation point.
 
+Room settings select one of the original custom-game implementations before root frame 10 starts: mode 1 is Last Man Standing and mode 4 is Gun Game. Last Man Standing uses the configured lives value. Gun Game retains its original fixed rules: unlimited respawns, no grenades, crates, or power-ups, one weapon upgrade per elimination, and victory after completing level 16. The networking layer synchronizes inputs for both modes without recreating either ruleset.
+
 ## Authoritative lockstep
 
 The server's `LockstepRelay` owns the next frame number. Clients may queue input within a bounded future window. While a row remains pending, its owner may revise that input; after finalization the row is immutable and late messages are discarded.

@@ -237,7 +237,7 @@ function createServer(options = {}) {
         if (rooms.size >= limits.maxRooms) return fail(client, 'Room capacity has been reached. Try again later.');
         let code;
         do { code = crypto.randomBytes(3).toString('hex').toUpperCase(); } while (rooms.has(code));
-        const room = { code, host: null, players: [], phase: 'lobby', settings: { map: 1, lives: 10 }, hashes: new Map() };
+        const room = { code, host: null, players: [], phase: 'lobby', settings: { mode: 'last-man-standing', map: 1, lives: 10 }, hashes: new Map() };
         rooms.set(code, room);
         enter(client, room, name);
       } else {
@@ -260,18 +260,19 @@ function createServer(options = {}) {
     if (message.type === 'settings') {
       if (room.host !== client.id) return fail(client, 'Only the host may modify the match settings.');
       if (room.phase !== 'lobby') return fail(client, 'Match settings cannot be changed after the match has started.');
-      if (!Number.isInteger(message.map) || message.map < 1 || message.map > 12 ||
+      if (!['last-man-standing', 'gun-game'].includes(message.mode) ||
+          !Number.isInteger(message.map) || message.map < 1 || message.map > 12 ||
           !Number.isInteger(message.lives) || message.lives < 1 || message.lives > 20 ||
-          Object.keys(message).some((key) => !['type', 'map', 'lives'].includes(key))) {
-        return fail(client, 'Only Last Man Standing is supported. Select a map from 1 to 12 and a lives value from 1 to 20.');
+          Object.keys(message).some((key) => !['type', 'mode', 'map', 'lives'].includes(key))) {
+        return fail(client, 'Select Last Man Standing or Gun Game, a map from 1 to 12, and a lives value from 1 to 20.');
       }
-      room.settings = { map: message.map, lives: message.lives };
+      room.settings = { mode: message.mode, map: message.map, lives: message.lives };
       updateRoom(room);
     } else if (message.type === 'start') {
       if (room.host !== client.id) return fail(client, 'Only the host may start the match.');
       if (room.phase !== 'lobby') return fail(client, 'The match has already started.');
       if (room.players.length < 2) return fail(client, 'At least two players are required to start a match.');
-      if (Object.keys(message).some((key) => key !== 'type')) return fail(client, 'Select the map and lives value through the room settings.');
+      if (Object.keys(message).some((key) => key !== 'type')) return fail(client, 'Select the game mode, map, and lives value through the room settings.');
       room.phase = 'loading';
       room.match = crypto.randomBytes(12).toString('hex');
       room.seed = crypto.randomInt(1, 0x7fffffff);

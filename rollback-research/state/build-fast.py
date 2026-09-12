@@ -112,9 +112,12 @@ def main():
         'originalNetStatePreserved': True, 'fps': 35,
         'tool': 'JPEXS FFDec 26.2.1',
     }
-    public_output = BUILD / 'public' / 'gunmayhem-net.swf'
+    public_output = ROOT / 'public' / 'gunmayhem-net.swf'
     public_output.parent.mkdir(parents=True, exist_ok=True)
     shutil.copyfile(OUTPUT, public_output)
+    prepared_output = BUILD / 'public' / 'gunmayhem-net.swf'
+    prepared_output.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copyfile(OUTPUT, prepared_output)
     PROOF.write_text(json.dumps(proof, indent=2) + '\n')
     print(json.dumps(proof, indent=2))
     print(OUTPUT)

@@ -2,14 +2,16 @@
 const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path');
 const {chromium}=require('playwright');
 const clientCount=Number(process.env.GM_NETWORK_CLIENTS||2),duration=Number(process.env.GM_NETWORK_SECONDS||12);
+const gameMode=process.env.GM_GAME_MODE||'last-man-standing';
 const configuredDelays=(process.env.GM_NETWORK_DELAYS||process.env.GM_NETWORK_DELAY||'75').split(',').map(Number);
 const delays=Array.from({length:clientCount},(_,i)=>configuredDelays[i]??configuredDelays.at(-1));
 assert(Number.isInteger(clientCount)&&clientCount>=2&&clientCount<=4,'Expected two to four browser clients');
+assert(['last-man-standing','gun-game'].includes(gameMode),'Expected last-man-standing or gun-game');
 assert(delays.every(delay=>Number.isFinite(delay)&&delay>=0),'Network delays must be non-negative numbers');
 const out=path.join(__dirname,'results',process.env.GM_NETWORK_LABEL||'network');
 (async()=>{
  const browser=await chromium.launch({headless:true,executablePath:process.env.GM_BROWSER_BIN||undefined,args:['--autoplay-policy=no-user-gesture-required',...(process.env.GM_GPU==='1'?['--use-gl=angle','--use-angle=swiftshader','--enable-unsafe-swiftshader']:[])]});
- const report={delayEachDirectionMs:delays,duration,clientCount,errors:[],console:[],webglWarnings:[],samples:[]};
+ const report={gameMode,delayEachDirectionMs:delays,duration,clientCount,errors:[],console:[],webglWarnings:[],samples:[]};
  fs.mkdirSync(out,{recursive:true});
  try{
   const pages=[];
@@ -32,6 +34,7 @@ const out=path.join(__dirname,'results',process.env.GM_NETWORK_LABEL||'network')
    await page.locator('#name').fill('Rollback Test '+(i+1));
   }
   await pages[0].locator('#create').click();await pages[0].locator('#room-title').waitFor();
+  if(gameMode!=='last-man-standing')await pages[0].locator('#mode').selectOption(gameMode);
   const room=await pages[0].locator('#room-title').textContent();
   for(const page of pages.slice(1)){await page.locator('#room-code').fill(room);await page.locator('button[type="submit"]').click();}
   await pages[0].waitForFunction(count=>[...document.querySelectorAll('#players li')].filter(item=>!item.classList.contains('empty')).length===count,clientCount);
@@ -45,7 +48,7 @@ const out=path.join(__dirname,'results',process.env.GM_NETWORK_LABEL||'network')
   report.clients=await Promise.all(pages.map(async(p,i)=>{
    const parent=await p.evaluate(()=>({diagnostics:gunmayhemDiagnostics(),states:testStates,frames:frameTimes,messages:runtimeMessages,notice:document.getElementById('notice').textContent,overlay:document.getElementById('overlay-text').textContent}));
    const runtimeFrame=p.frames().find(f=>f.url().includes('runtime.html'));
-   const runtime=runtimeFrame?await runtimeFrame.evaluate(()=>rollbackDiagnostics()):null;
+   const runtime=runtimeFrame?await runtimeFrame.evaluate(()=>({diagnostics:rollbackDiagnostics(),nativeMode:call('netState').mode})):null;
    await p.screenshot({path:path.join(out,`client-${i}.png`)});
    return{parent,runtime};
   }));
@@ -54,10 +57,11 @@ const out=path.join(__dirname,'results',process.env.GM_NETWORK_LABEL||'network')
   for(const f of shared)for(const client of report.clients.slice(1))assert.deepEqual(report.clients[0].parent.states[f],client.parent.states[f],'State mismatch at '+f);
   for(const c of report.clients){
    assert(c.parent.diagnostics.started,JSON.stringify(c.parent));
+   assert.equal(c.runtime?.nativeMode,gameMode==='gun-game'?4:1,'The SWF started the wrong original game mode');
    assert(c.runtime,'Game iframe was removed: '+JSON.stringify(c.parent));
-   assert.equal(c.runtime.mode,'lockstep');
-   assert.equal(c.runtime.metrics.rollbacks,0,'Production lockstep must not replay predicted history');
-   assert(c.runtime.metrics.framesSimulated>0,'Lockstep test did not simulate authoritative frames');
+   assert.equal(c.runtime.diagnostics.mode,'lockstep');
+   assert.equal(c.runtime.diagnostics.metrics.rollbacks,0,'Production lockstep must not replay predicted history');
+   assert(c.runtime.diagnostics.metrics.framesSimulated>0,'Lockstep test did not simulate authoritative frames');
    const times=c.parent.frames;
    assert(times.length>2,'Too few rendered frame samples');
    c.averageFPS=(times.at(-1)[1]-times[0][1])*1000/(times.at(-1)[0]-times[0][0]);

@@ -190,7 +190,7 @@ test('isolates rooms, limits seats to four, and compacts seats when a player lea
   assert(other.messages.filter((message) => message.type === 'room').every((message) => message.room === second.room && message.players.length === 1));
 });
 
-test('only the host controls a lobby and invalid modes/settings never change settings', async (t) => {
+test('only the host controls a lobby and both original modes are preserved in match settings', async (t) => {
   const app = await setup(t);
   const host = await app.peer();
   const { room } = await create(host);
@@ -200,21 +200,21 @@ test('only the host controls a lobby and invalid modes/settings never change set
   await join(guest, room);
   guest.send({ type: 'start' });
   assert.match((await guest.next('error')).message, /host/);
-  guest.send({ type: 'settings', map: 2, lives: 5 });
+  guest.send({ type: 'settings', mode: 'gun-game', map: 2, lives: 5 });
   assert.match((await guest.next('error')).message, /host/);
-  for (const settings of [{ map: 0, lives: 5 }, { map: 13, lives: 5 }, { map: 1, lives: 0 }, { map: 1, lives: 21 }, { map: '1', lives: 5 }, { map: 1, lives: 5, mode: 'deathmatch' }]) {
+  for (const settings of [{ mode: 'last-man-standing', map: 0, lives: 5 }, { mode: 'last-man-standing', map: 13, lives: 5 }, { mode: 'last-man-standing', map: 1, lives: 0 }, { mode: 'last-man-standing', map: 1, lives: 21 }, { mode: 'last-man-standing', map: '1', lives: 5 }, { mode: 'deathmatch', map: 1, lives: 5 }, { map: 1, lives: 5 }]) {
     host.send({ type: 'settings', ...settings });
-    assert.match((await host.next('error')).message, /Last Man Standing/);
+    assert.match((await host.next('error')).message, /Last Man Standing or Gun Game/);
   }
   host.send({ type: 'start', mode: 'campaign' });
   await host.next('error');
-  host.send({ type: 'settings', map: 12, lives: 20 });
-  const state = await guest.next('room', (message) => message.settings.map === 12);
-  assert.deepEqual(state.settings, { map: 12, lives: 20 });
+  host.send({ type: 'settings', mode: 'gun-game', map: 12, lives: 20 });
+  const state = await guest.next('room', (message) => message.settings.mode === 'gun-game' && message.settings.map === 12);
+  assert.deepEqual(state.settings, { mode: 'gun-game', map: 12, lives: 20 });
   const load = await loadMatch(host, [host, guest]);
-  assert.deepEqual(load.settings, { map: 12, lives: 20 });
+  assert.deepEqual(load.settings, { mode: 'gun-game', map: 12, lives: 20 });
   assert.equal(load.players, 2);
-  host.send({ type: 'settings', map: 1, lives: 5 });
+  host.send({ type: 'settings', mode: 'last-man-standing', map: 1, lives: 5 });
   assert.match((await host.next('error')).message, /cannot be changed/);
 });
 
