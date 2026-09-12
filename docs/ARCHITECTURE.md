@@ -15,6 +15,8 @@ The original movie advances at 35 frames per second. Before advancing frame `N`,
 | 4 | Fire |
 | 5 | Grenade |
 
+Keyboard and multi-touch controls both produce this same mask. Touch input therefore uses the existing lockstep path and does not add a separate mobile simulation or protocol.
+
 The ActionScript bridge overrides the input lookup used by the game and supplies a seeded Park-Miller random stream. This gives every client the same input and random value at the same simulation point.
 
 ## Authoritative lockstep

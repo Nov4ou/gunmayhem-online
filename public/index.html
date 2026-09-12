@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
   <meta name="theme-color" content="#16181b">
   <title>Gun Mayhem · Online</title>
   <link rel="stylesheet" href="./style.css">
@@ -11,7 +11,7 @@
 <main>
   <header><a class="brand" href="./">GUN<span>MAYHEM</span></a><span class="mode">LAST MAN STANDING</span><span id="connection" class="connection">Connecting…</span><span id="latency" class="latency" title="Round-trip time to the game server">Latency: measuring…</span></header>
   <section id="entrance" class="entrance">
-    <div><p class="eyebrow">Original Flash Edition · Online Multiplayer for 2–4 Players</p><h1>Compete to Be the Last Player Standing.</h1><p class="intro">Create a private room and share the invitation link. Each participant plays from a separate computer in a synchronized match.</p></div>
+    <div><p class="eyebrow">Original Flash Edition · Online Multiplayer for 2–4 Players</p><h1>Compete to Be the Last Player Standing.</h1><p class="intro">Create a private room and share the invitation link. Each participant plays from a separate computer, phone, or tablet in a synchronized match.</p></div>
     <form id="room-form">
       <label for="name">Display Name</label><input id="name" maxlength="20" autocomplete="nickname" placeholder="Player" value="Player">
       <button id="create" type="button" class="primary">Create Room</button>
@@ -25,10 +25,26 @@
   </section>
   <section id="play-section" hidden>
     <div class="play-bar"><strong id="seat-label"></strong><span id="match-status">Loading game…</span><button id="sound">Sound: Enabled</button><button id="fullscreen">Fullscreen</button></div>
-    <div id="game-shell" class="game-shell"><div id="game-mount"></div><div id="overlay" class="overlay"><span id="overlay-text">Loading the original game…</span></div></div>
+    <div id="game-shell" class="game-shell">
+      <div id="game-mount"></div>
+      <div id="touch-controls" class="touch-controls" aria-label="Touch game controls" aria-hidden="true">
+        <div class="touch-pad touch-movement" aria-label="Movement controls">
+          <button type="button" class="touch-button touch-up" data-code="ArrowUp" aria-label="Jump"><span aria-hidden="true">▲</span></button>
+          <button type="button" class="touch-button touch-left" data-code="ArrowLeft" aria-label="Move left"><span aria-hidden="true">◀</span></button>
+          <button type="button" class="touch-button touch-down" data-code="ArrowDown" aria-label="Move down"><span aria-hidden="true">▼</span></button>
+          <button type="button" class="touch-button touch-right" data-code="ArrowRight" aria-label="Move right"><span aria-hidden="true">▶</span></button>
+        </div>
+        <div class="touch-actions" aria-label="Action controls">
+          <button type="button" class="touch-button touch-grenade" data-code="KeyK" aria-label="Throw grenade">GRENADE</button>
+          <button type="button" class="touch-button touch-fire" data-code="KeyJ" aria-label="Fire weapon">FIRE</button>
+        </div>
+      </div>
+      <button id="touch-exit" type="button" class="touch-exit" aria-label="Exit fullscreen">×</button>
+      <div id="overlay" class="overlay"><span id="overlay-text">Loading the original game…</span></div>
+    </div>
   </section>
   <p id="notice" class="notice" role="status" aria-live="polite"></p>
-  <footer><div><kbd>W A S D</kbd> / <kbd>↑ ← ↓ →</kbd> Move and Jump <span class="sep">·</span> <kbd>J</kbd> Fire <span class="sep">·</span> <kbd>K</kbd> Grenade</div><span class="muted">All active controls are released when the game window loses focus.</span></footer>
+  <footer><div><kbd>W A S D</kbd> / <kbd>↑ ← ↓ →</kbd> Move and Jump <span class="sep">·</span> <kbd>J</kbd> Fire <span class="sep">·</span> <kbd>K</kbd> Grenade</div><span class="muted">Touch controls appear automatically on mobile devices. Landscape orientation is recommended.</span></footer>
 </main>
 </body>
 </html>

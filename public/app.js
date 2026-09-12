@@ -2,6 +2,7 @@
 const $ = id => document.getElementById(id);
 const keys = new Map([['KeyW',1],['ArrowUp',1],['KeyA',2],['ArrowLeft',2],['KeyS',4],['ArrowDown',4],['KeyD',8],['ArrowRight',8],['KeyJ',16],['BracketLeft',16],['KeyK',32],['BracketRight',32]]);
 const held = new Set();
+const touchHeld = new Set(), touchPointers = new Map();
 const palette = ['#77b4f7','#ef7061','#f6ca64','#8bd096'];
 let socket, myId, room, match, iframe, bootConfig, reconnectTimer, pingTimer, reconnectAttempts = 0, volume = 1, started = false, latestFrame = 0, stateCache;
 let pingSequence = 0, latencyMs = null, inputLatencyMs = null, inputLatencyP95Ms = null, inputLatencyCount = 0, inputProbeSequence = 0;
@@ -65,21 +66,44 @@ function receiveLatency(data) {
   refreshLatency();
 }
 function runtime(type,data={}) { iframe?.contentWindow?.postMessage({source:'gunmayhem-app',type,...data},location.origin); }
-function mask() { let bits=0; for (const key of held) bits |= keys.get(key)||0; return bits; }
-function release() { held.clear(); send('input',{mask:0}); }
-function key(code,down) {
+function mask() { let bits=0; for (const key of held) bits |= keys.get(key)||0; for (const key of touchHeld) bits |= keys.get(key)||0; return bits; }
+function refreshTouchButtons() { for (const button of document.querySelectorAll('.touch-button')) button.classList.toggle('active',touchHeld.has(button.dataset.code)); }
+function release() { held.clear();touchHeld.clear();touchPointers.clear();refreshTouchButtons();send('input',{mask:0}); }
+function setInput(code,down,source) {
   if (botMode || !keys.has(code) || !started) return;
   const before=mask(),bit=keys.get(code)||0;
-  if (down) held.add(code); else held.delete(code);
+  if (down) source.add(code); else source.delete(code);
   const after=mask();
   if(down&&!(before&bit)&&(after&bit)){
     runtime('latencyProbe',{probe:{id:++inputProbeSequence,startedAtMs:performance.timeOrigin+performance.now(),bit,code}});
   }
   send('input',{mask:mask()});
 }
+function key(code,down) {setInput(code,down,held);}
+function setTouchControlsEnabled(enabled) {
+  $('touch-controls').classList.toggle('enabled',enabled&&!botMode);
+  $('touch-controls').setAttribute('aria-hidden',String(!enabled||Boolean(botMode)));
+  if(!enabled)release();
+}
+function releaseTouchPointer(pointerId) {
+  const code=touchPointers.get(pointerId);if(!code)return;
+  touchPointers.delete(pointerId);
+  if(![...touchPointers.values()].includes(code))setInput(code,false,touchHeld);
+  refreshTouchButtons();
+}
+for(const button of document.querySelectorAll('.touch-button')){
+  button.addEventListener('pointerdown',event=>{
+    if(!started||botMode)return;
+    event.preventDefault();
+    try{button.setPointerCapture(event.pointerId);}catch{}
+    const code=button.dataset.code;touchPointers.set(event.pointerId,code);setInput(code,true,touchHeld);refreshTouchButtons();
+  });
+  for(const type of ['pointerup','pointercancel','lostpointercapture'])button.addEventListener(type,event=>{event.preventDefault();releaseTouchPointer(event.pointerId);});
+  button.addEventListener('contextmenu',event=>event.preventDefault());
+}
 function setOverlay(message) { $('overlay').classList.toggle('hidden',!message); $('overlay-text').textContent = message || ''; }
 function stopGame(reason) {
-  release(); started=false; resetInputLatency(); match=null; bootConfig=null; showingResult=false;resultFrame=null;$('back').hidden=true;
+  started=false;setTouchControlsEnabled(false);if(document.fullscreenElement)document.exitFullscreen().catch(()=>{});setExpanded(false);resetInputLatency();match=null;bootConfig=null;showingResult=false;resultFrame=null;$('back').hidden=true;
   iframe?.remove(); iframe=null;
   $('play-section').hidden=true;document.body.classList.remove('playing');
   notice(reason);
@@ -133,12 +157,12 @@ function connect() {
       $('play-section').hidden=false;document.body.classList.add('playing');setOverlay('Loading the original game…');$('match-status').textContent='Loading…';
       iframe=document.createElement('iframe');iframe.title='Original Gun Mayhem game';iframe.allow='autoplay; fullscreen';iframe.src='./runtime.html';$('game-mount').replaceChildren(iframe);
     }
-    else if(data.type==='begin') {if(data.match!==match)return;started=true;latestFrame=0;resetInputLatency();setOverlay('');$('match-status').textContent=botMode?`Bot ${botMode} active · automatic movement/fire`:'Select the game window to activate controls.';runtime('volume',{volume});}
+    else if(data.type==='begin') {if(data.match!==match)return;started=true;setTouchControlsEnabled(true);latestFrame=0;resetInputLatency();setOverlay('');$('match-status').textContent=botMode?`Bot ${botMode} active · automatic movement/fire`:document.body.classList.contains('touch-capable')?'Touch controls are active. Landscape orientation is recommended.':'Select the game window to activate controls.';runtime('volume',{volume});}
     else if(data.type==='tick') {if(data.match!==match)return;latestFrame=data.frame;runtime('tick',{frame:data.frame,masks:data.masks});}
     else if(data.type==='paused') {release();setOverlay('Awaiting the other players’ connections…');$('match-status').textContent='Synchronization Paused';}
     else if(data.type==='resumed') {setOverlay('');$('match-status').textContent='Match in Progress';}
     else if(data.type==='stopped') {
-      if(data.finished&&iframe){release();started=false;match=null;showingResult=true;runtime('result');$('back').hidden=false;$('match-status').textContent='Match Complete';setOverlay('');notice(data.reason);}
+      if(data.finished&&iframe){started=false;setTouchControlsEnabled(false);match=null;showingResult=true;runtime('result');$('back').hidden=false;$('match-status').textContent='Match Complete';setOverlay('');notice(data.reason);}
       else stopGame(data.reason||'The match has ended. A new match may now be started.');
     }
   };
@@ -184,9 +208,22 @@ $('back').onclick=()=>{stopGame('');if(room)updateRoom(room);};
 for(const id of ['map','lives'])$(id).onchange=()=>send('settings',{map:Number($('map').value),lives:Number($('lives').value)});
 $('invite').onclick=async()=>{if(!room)return;const url=new URL(location.href);url.search=`?room=${room.room}`;try{await navigator.clipboard.writeText(url.href);notice('The invitation link has been copied. Share it with the other participants.');}catch{const input=document.createElement('input');input.value=url.href;document.body.append(input);input.select();const copied=document.execCommand('copy');input.remove();notice(copied?'The invitation link has been copied.':`Invitation link: ${url.href}`);}};
 $('sound').onclick=()=>{volume=volume?0:1;runtime('volume',{volume});$('sound').textContent=`Sound: ${volume?'Enabled':'Disabled'}`;};
-$('fullscreen').onclick=()=>{$('game-shell').requestFullscreen?.().catch(()=>notice('Fullscreen mode is not supported by this browser.'));};
+const touchCapable=('ontouchstart' in window)||matchMedia('(pointer:coarse)').matches;
+document.body.classList.toggle('touch-capable',touchCapable);
+let expanded=false;
+function setExpanded(value){expanded=value;$('game-shell').classList.toggle('mobile-expanded',value);document.body.classList.toggle('mobile-expanded',value);$('fullscreen').textContent=value?'Exit Fullscreen':'Fullscreen';}
+$('touch-exit').onclick=async()=>{if(document.fullscreenElement)await document.exitFullscreen();else setExpanded(false);};
+$('fullscreen').onclick=async()=>{
+  if(document.fullscreenElement){await document.exitFullscreen();return;}
+  if(expanded){setExpanded(false);return;}
+  if($('game-shell').requestFullscreen){
+    try{await $('game-shell').requestFullscreen();try{await screen.orientation?.lock?.('landscape');}catch{}return;}catch{}
+  }
+  setExpanded(true);
+};
+document.addEventListener('fullscreenchange',()=>{$('fullscreen').textContent=document.fullscreenElement?'Exit Fullscreen':'Fullscreen';if(!document.fullscreenElement)try{screen.orientation?.unlock?.();}catch{}});
 // Read-only diagnostics used by the cross-browser synchronization checks.
-window.gunmayhemDiagnostics=()=>({room:room?.room,match,started,frame:latestFrame,state:stateCache,latencyMs,inputLatencyMs,inputLatencyP95Ms,inputLatencyCount,rollback:iframe?.contentWindow?.rollbackDiagnostics?.()??null});
+window.gunmayhemDiagnostics=()=>({room:room?.room,match,started,frame:latestFrame,state:stateCache,inputMask:mask(),touchCapable,latencyMs,inputLatencyMs,inputLatencyP95Ms,inputLatencyCount,rollback:iframe?.contentWindow?.rollbackDiagnostics?.()??null});
 window.gunmayhemSpikeReport=()=>iframe?.contentWindow?.gunmayhemSpikeReport?.()??null;
 window.gunmayhemSpikeDownload=()=>{
  const report=window.gunmayhemSpikeReport();if(!report){notice('No performance spike has been captured yet.');return false;}

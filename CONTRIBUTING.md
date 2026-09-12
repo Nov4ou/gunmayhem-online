@@ -18,6 +18,8 @@ Run `npm test` for every protocol or runtime change. Changes to browser scheduli
 
 Changes to the SWF bridge require `npm run build:swf`. That command needs a JDK, JPEXS FFDec 26.2.1, and the original `gunmayhem.swf`. It fails if stage metadata or any non-script resource differs from the original.
 
+Changes to the touch interface should also run `npm run test:mobile` against `npm run start:prepared`. The smoke test checks a two-player room at a landscape phone viewport, combined multi-touch input, control bounds, and the fullscreen fallback.
+
 Do not commit `rollback-research/build/`, test reports, screenshots, browser profiles, decompiler output, or local tool installations.
 
 ## Pull requests

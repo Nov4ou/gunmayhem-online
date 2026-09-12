@@ -6,7 +6,7 @@ Browser-based multiplayer for the original **Gun Mayhem** Flash game. Each playe
 
 ## Features
 
-- Two to four players on separate computers
+- Two to four players on computers, phones, or tablets
 - Original graphics, animation, audio, maps, weapons, and 35 FPS simulation
 - Twelve Last Man Standing maps and configurable lives
 - Authoritative input lockstep with deterministic random state
@@ -14,6 +14,7 @@ Browser-based multiplayer for the original **Gun Mayhem** Flash game. Each playe
 - Live WebSocket RTT and measured input-to-presentation latency
 - State verification, reconnect handling, room ownership, and private invitation links
 - Built-in performance spike recorder for field diagnostics
+- Multi-touch controls and a landscape fullscreen layout for mobile devices
 
 The VPS does not render the game or transmit video. It orders compact input messages into authoritative frame rows. Every browser advances its own copy of the SWF with the same frame, input, and random state.
 
@@ -41,6 +42,8 @@ Open `http://127.0.0.1:3003/`. `npm start` creates a clean runtime build in `rol
 
 Click the game before playing so the browser can focus the controls and enable audio.
 
+On a phone or tablet, the same actions appear as on-screen controls when a match begins. Multiple controls can be held at once, including moving while firing or charging a grenade. Landscape orientation and fullscreen mode provide the clearest view. If a mobile browser does not support element fullscreen, the interface automatically uses an equivalent viewport-filling layout.
+
 ## How synchronization works
 
 The production runtime uses server-finalized input lockstep. Clients send six-bit input masks for future simulation frames. The server accepts revisions while a frame remains pending, then broadcasts one immutable row containing every player's input. A missing input becomes neutral after a short grace period, so a backgrounded or stalled browser cannot pause the entire room.
@@ -64,12 +67,13 @@ Useful commands:
 | --- | --- |
 | `npm run build` | Generate the deployable server, client, patched Ruffle runtime, and assets |
 | `npm test` | Run server, lockstep, memory, audio, and WebGL tests |
+| `npm run test:mobile` | Run the two-client mobile layout and multi-touch input smoke test |
 | `npm run test:network` | Run a multi-browser synchronization test against a local server |
 | `npm run build:swf` | Rebuild the network-enabled SWF with JPEXS FFDec 26.2.1 and a JDK |
 
 The normal JavaScript build uses the checked-in network-enabled SWF. Rebuilding that SWF requires a legally obtained original `gunmayhem.swf`; set `FFDEC_JAR` to the JPEXS FFDec 26.2.1 JAR. The build verifies every non-script SWF tag byte for byte.
 
-The browser test requires Playwright Chromium. Install it with `npx playwright install chromium`, start `npm run start:prepared` in one terminal, and run `npm run test:network` in another. `GM_NETWORK_CLIENTS`, `GM_NETWORK_DELAYS`, and `GM_NETWORK_SECONDS` configure its player count, per-client one-way delay, and duration.
+The browser tests require Playwright Chromium. Install it with `npx playwright install chromium`, start `npm run start:prepared` in one terminal, and run `npm run test:mobile` or `npm run test:network` in another. `GM_NETWORK_CLIENTS`, `GM_NETWORK_DELAYS`, and `GM_NETWORK_SECONDS` configure the network test's player count, per-client one-way delay, and duration.
 
 See [Contributing](CONTRIBUTING.md) for the validation workflow and [Deployment](docs/DEPLOYMENT.md) for a systemd/Caddy setup.
 
