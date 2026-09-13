@@ -8,7 +8,7 @@ Browser-based multiplayer for the original **Gun Mayhem** Flash game. Each playe
 
 - Two to four players on computers, phones, or tablets
 - Original graphics, animation, audio, maps, weapons, and 35 FPS simulation
-- Last Man Standing with configurable lives and the original 16-level Gun Game progression
+- Last Man Standing with configurable lives and a reversed 16-level Gun Game weapon progression
 - Twelve original custom-game maps in both modes
 - Per-player selection from the original 10 colors, 15 outfits, and 24 headwear options
 - Authoritative input lockstep with deterministic random state
@@ -55,7 +55,7 @@ The production runtime uses server-finalized input lockstep. Clients send six-bi
 
 Two- and three-player matches schedule input one frame ahead. Four-player matches use three frames to absorb the additional network and browser scheduling variance. A local key edge can revise its pending future input before finalization, reducing the delay that would otherwise be added by polling at the game's 35 Hz frame rate.
 
-The SWF bridge supplies synchronized input and a deterministic random source. It also exposes lightweight state values used to detect divergence. The original game simulation remains inside the SWF; the networking layer does not reimplement physics, weapons, collision, rendering, audio, or mode rules. In Gun Game, the original movie grants a new weapon after every kill and ends the match when a player reaches level 16.
+The SWF bridge supplies synchronized input and a deterministic random source. It also exposes lightweight state values used to detect divergence. The original game simulation remains inside the SWF; the networking layer does not reimplement physics, collision, rendering, or audio. In Gun Game, the original 15-weapon list is reversed: every player starts with the final, strongest weapon and receives the preceding weapon after each elimination. The original level counter, ammunition regression, unlimited respawns, and level-16 victory condition remain in effect.
 
 See [Architecture](docs/ARCHITECTURE.md) for protocol and runtime details.
 

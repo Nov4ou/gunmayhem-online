@@ -25,7 +25,7 @@ The full checksum is relatively expensive and should be sampled periodically (fo
 
 ## Original defaults and end-of-match behavior
 
-Original first-run options are 10 lives; player colors `[2, 5, 8, 10]`; shirt, hat and pistol 1; perk 7 (`+33% More Ammo`); sound and music on. Gun Game uses the original fixed 16-level weapon progression, unlimited respawns, and disables grenades, crates, and power-ups; the lives configuration is ignored by that mode. The original `def_quality = 2` is **MEDIUM** in the game, as selected by its untouched root frame 10 script. This is not a quality reduction introduced by netplay.
+Original first-run options are 10 lives; player colors `[2, 5, 8, 10]`; shirt, hat and pistol 1; perk 7 (`+33% More Ammo`); sound and music on. Gun Game uses the original 16 levels and weapon list in reverse order (`44, 65, 66, 62, 58, 33, 38, 11, 50, 51, 13, 46, 19, 29, 2`), retains unlimited respawns and ammunition regression, and disables grenades, crates, and power-ups; the lives configuration is ignored by that mode. The original `def_quality = 2` is **MEDIUM** in the game, as selected by its untouched root frame 10 script. This is not a quality reduction introduced by netplay.
 
 Selectable ranges are colors 1–10, shirts 1–15, hats 1–24, starting pistols 1–6, perks 1–9 and maps 1–12. Perks 3, 6 and 9 are locked in a fresh original campaign save; the bridge can represent them but the default is the original unlocked perk 7. Shirt/hat resources contain additional frames for NPCs; those are not exposed by the original selector. Map 13 is the original tutorial/test map; it is not included in the 12 normal custom-game maps.
 

@@ -1,6 +1,6 @@
 {
   "originalSHA256": "f85f970882bc6667749e219a13736c9ec21b8c9c24b8b72bfe272f33be4248f1",
-  "fastNetplaySHA256": "436d69192a714753c8c87cd78dc654244d215ad29ca9564c698a32beabdcdc3b",
+  "fastNetplaySHA256": "a4b9ca66d3c41ac6aac4d2ec6e7a91ed2c195d4383b222cb980b71d4205f8ca5",
   "originalBridgeSHA256": "6bc54dfa089a9d1a26e5afd10135cc42870043daeb6487127ad2d6f203c5aa25",
   "extensionSHA256": "82a1203ebad9e74536a947331cb8f7cde84d13ad94da23c5ffa94874006b888a",
   "nonScriptTagsVerifiedByteForByte": 13757,
@@ -9,5 +9,22 @@
   "stageAndFrameRateUnchanged": true,
   "originalNetStatePreserved": true,
   "fps": 35,
+  "gunGameProgression": [
+    44,
+    65,
+    66,
+    62,
+    58,
+    33,
+    38,
+    11,
+    50,
+    51,
+    13,
+    46,
+    19,
+    29,
+    2
+  ],
   "tool": "JPEXS FFDec 26.2.1"
 }

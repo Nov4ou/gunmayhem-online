@@ -45,6 +45,7 @@ const out=path.join(__dirname,'results',process.env.GM_NETWORK_LABEL||'network')
   await Promise.all(pages.map(page=>page.waitForFunction(expected=>JSON.stringify(gunmayhemDiagnostics().profiles)===JSON.stringify(expected),testProfiles.slice(0,clientCount))));
   await pages[0].waitForFunction(()=>!document.getElementById('start').disabled);await pages[0].locator('#start').click();
   await Promise.all(pages.map(p=>p.waitForFunction(()=>gunmayhemDiagnostics().started,{},{timeout:90000})));
+  if(gameMode==='gun-game')for(const page of pages){const frame=page.frames().find(candidate=>candidate.url().includes('runtime.html'));assert(frame);await frame.waitForFunction(count=>{const players=call('netState').players.slice(0,count);return players.length===count&&players.every(Boolean);},clientCount);const players=await frame.evaluate(()=>call('netState').players);assert(players.slice(0,clientCount).every(player=>player.currentlevel===1&&player.currentgun===44),'Reverse Gun Game did not start with weapon 44');}
   for(let i=0;i<duration*2;i++){
    await Promise.all(pages.map((p,slot)=>p.evaluate(({i,slot})=>{key('KeyJ',i%3!==0);key(slot%2?'KeyA':'KeyD',i%4<2);key('KeyW',i%4===0);key('KeyK',i%7===0);},{i,slot})));
    await new Promise(r=>setTimeout(r,500));

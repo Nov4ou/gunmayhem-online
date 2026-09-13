@@ -17,6 +17,8 @@ JAR = Path(os.environ.get('FFDEC_JAR', ROOT / 'research' / 'ffdec' / 'ffdec.jar'
 SOURCE = ROOT / 'gunmayhem.swf'
 OUTPUT = BUILD / 'gunmayhem-fast.swf'
 PROOF = PATCHES / 'resource-proof.json'
+ORIGINAL_GUN_GAME_WEAPONS = [2, 29, 19, 46, 13, 51, 50, 11, 38, 33, 58, 62, 66, 65, 44]
+REVERSED_GUN_GAME_WEAPONS = list(reversed(ORIGINAL_GUN_GAME_WEAPONS))
 
 
 def tags(data, path='root'):
@@ -53,8 +55,8 @@ def sha(file):
     return hashlib.sha256(file.read_bytes()).hexdigest()
 
 
-def patch_spawn_shield(movie):
-    """Give every human player the game's built-in shield for 140 frames on spawn/respawn."""
+def patch_player_rules(movie):
+    """Apply the spawn shield and reverse the original Gun Game weapon sequence."""
     import tempfile
     with tempfile.TemporaryDirectory(prefix='gunmayhem-shield-') as td:
         td = Path(td)
@@ -72,9 +74,22 @@ def patch_spawn_shield(movie):
         new = '   _root.hud.update();\n   invisibletime = 0;\n   shieldtime = 140;\n   jetfuel = 0;'
         if text.count(old) != 1:
             raise RuntimeError('Spawn shield patch anchor changed')
+        text = text.replace(old, new, 1)
+        for level, (original_gun, reversed_gun) in enumerate(zip(ORIGINAL_GUN_GAME_WEAPONS, REVERSED_GUN_GAME_WEAPONS), 1):
+            tail = '\n         break;' if level < 15 else ''
+            old_case = f'      case {level}:\n         currentgun = {original_gun};{tail}'
+            new_case = f'      case {level}:\n         currentgun = {reversed_gun};{tail}'
+            if text.count(old_case) != 1:
+                raise RuntimeError(f'Gun Game level {level} patch anchor changed')
+            text = text.replace(old_case, new_case, 1)
+        old_initial = 'currentlevel = 0;\nUPGRADE();\ncurrentgun = 2;\ncurrentwave = 1;'
+        new_initial = 'currentlevel = 0;\nUPGRADE();\ncurrentgun = _root.gamemode == 4 ? 44 : 2;\ncurrentwave = 1;'
+        if text.count(old_initial) != 1:
+            raise RuntimeError('Gun Game initial weapon patch anchor changed')
+        text = text.replace(old_initial, new_initial, 1)
         dst = imported / rel
         dst.parent.mkdir(parents=True, exist_ok=True)
-        dst.write_text(text.replace(old, new, 1))
+        dst.write_text(text)
         patched = td / 'patched.swf'
         subprocess.run(['java', '-jar', str(JAR), '-importScript', str(movie), str(patched), str(imported)], check=True)
         shutil.copyfile(patched, movie)
@@ -95,7 +110,7 @@ def main():
     subprocess.run(['javac', '-cp', str(JAR), '-d', str(classes), str(PATCHES / 'BuildSwf.java')], check=True)
     subprocess.run(['java', '-cp', str(JAR) + os.pathsep + str(classes), 'BuildSwf',
                     str(SOURCE), str(OUTPUT), str(combined), str(PATCHES / 'net-frame10.as')], check=True)
-    patch_spawn_shield(OUTPUT)
+    patch_player_rules(OUTPUT)
     original_header, original_tags = unpack(SOURCE)
     output_header, output_tags = unpack(OUTPUT)
     assert original_header == output_header, 'Stage dimensions, frame rate, or frame count changed'
@@ -110,6 +125,7 @@ def main():
         'nonScriptBytesVerified': sum(map(len, original_tags.values())),
         'changedNonScriptTags': changed, 'stageAndFrameRateUnchanged': True,
         'originalNetStatePreserved': True, 'fps': 35,
+        'gunGameProgression': REVERSED_GUN_GAME_WEAPONS,
         'tool': 'JPEXS FFDec 26.2.1',
     }
     public_output = ROOT / 'public' / 'gunmayhem-net.swf'
