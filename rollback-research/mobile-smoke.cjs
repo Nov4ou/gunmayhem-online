@@ -29,9 +29,14 @@ const {chromium,webkit}=require('playwright');
     assert.equal(await pages[0].locator('#lives-setting').isHidden(),gameMode==='gun-game');
     const room=await pages[0].locator('#room-title').textContent();
     await pages[1].locator('#room-code').fill(room);await pages[1].locator('button[type="submit"]').click();
+    await pages[0].locator('.skin-color[data-color="10"]').click();await pages[0].locator('#skin-shirt').selectOption('15');await pages[0].locator('#skin-hat').selectOption('24');
+    await pages[1].locator('.skin-color[data-color="1"]').click();await pages[1].locator('#skin-shirt').selectOption('2');await pages[1].locator('#skin-hat').selectOption('3');
+    const expectedProfiles=[{color:10,shirt:15,hat:24},{color:1,shirt:2,hat:3}];
+    await Promise.all(pages.map(page=>page.waitForFunction(expected=>JSON.stringify(gunmayhemDiagnostics().profiles)===JSON.stringify(expected),expectedProfiles)));
+    await pages[0].screenshot({path:path.join(out,'lobby-appearance.png'),fullPage:true});
     await pages[0].waitForFunction(()=>!document.getElementById('start').disabled);await pages[0].locator('#start').click();
     await Promise.all(pages.map(page=>page.waitForFunction(()=>gunmayhemDiagnostics().started,{},{timeout:90000})));
-    for(const page of pages){const frame=page.frames().find(candidate=>candidate.url().includes('runtime.html'));assert(frame);assert.equal(await frame.evaluate(()=>call('netState').mode),gameMode==='gun-game'?4:1);}
+    for(const page of pages){const frame=page.frames().find(candidate=>candidate.url().includes('runtime.html'));assert(frame);const native=await frame.evaluate(()=>call('netState'));assert.equal(native.mode,gameMode==='gun-game'?4:1);assert.deepEqual(native.profiles.slice(0,2).map(({color,shirt,hat})=>({color,shirt,hat})),expectedProfiles);}
     if(forceFallback)for(const page of pages){const frame=page.frames().find(candidate=>candidate.url().includes('runtime.html'));assert(frame);assert.equal(await frame.evaluate(()=>RuffleRollback.inspect().initialized),false);}
     assert.equal(await pages[0].locator('#touch-controls').evaluate(element=>getComputedStyle(element).display),'flex');
     const boxes=await pages[0].locator('.touch-button').evaluateAll(buttons=>buttons.filter(button=>getComputedStyle(button).display!=='none').map(button=>{const box=button.getBoundingClientRect();return{x:box.x,y:box.y,right:box.right,bottom:box.bottom,width:box.width,height:box.height};}));

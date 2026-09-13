@@ -21,6 +21,12 @@
   <section id="lobby" hidden>
     <div class="room-bar"><div><span class="muted">Room</span> <strong id="room-title"></strong></div><button id="invite">Copy Invitation Link</button><button id="leave" class="quiet">Leave Room</button></div>
     <ol id="players" class="players"></ol>
+    <section id="appearance" class="appearance" aria-labelledby="appearance-title">
+      <div class="appearance-heading"><div><strong id="appearance-title">Character Appearance</strong><span class="muted">Your selection is visible to every participant and applies when the match begins.</span></div></div>
+      <fieldset><legend>Color</legend><div id="skin-colors" class="skin-colors" role="radiogroup" aria-label="Character color"></div></fieldset>
+      <label>Outfit <select id="skin-shirt"></select></label>
+      <label>Headwear <select id="skin-hat"></select></label>
+    </section>
     <div class="settings"><label>Mode <select id="mode"><option value="last-man-standing">Last Man Standing</option><option value="gun-game">Gun Game</option></select></label><label>Map <select id="map"></select></label><label id="lives-setting">Lives <select id="lives"></select></label><button id="start" class="primary">Start Match</button><button id="stop" hidden>End Match</button><button id="back" hidden>Return to Lobby</button><span id="lobby-hint" class="muted"></span></div>
   </section>
   <section id="play-section" hidden>

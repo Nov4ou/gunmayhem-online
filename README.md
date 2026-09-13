@@ -10,6 +10,7 @@ Browser-based multiplayer for the original **Gun Mayhem** Flash game. Each playe
 - Original graphics, animation, audio, maps, weapons, and 35 FPS simulation
 - Last Man Standing with configurable lives and the original 16-level Gun Game progression
 - Twelve original custom-game maps in both modes
+- Per-player selection from the original 10 colors, 15 outfits, and 24 headwear options
 - Authoritative input lockstep with deterministic random state
 - One-frame input scheduling for two- and three-player matches; three frames for four players
 - Live WebSocket RTT and measured input-to-presentation latency
@@ -43,6 +44,8 @@ Open `http://127.0.0.1:3003/`. `npm start` creates a clean runtime build in `rol
 | Charge and throw grenade | Hold and release `K` |
 
 Click the game before playing so the browser can focus the controls and enable audio.
+
+Each participant can select a character color, outfit, and headwear in the room before the host starts the match. The selection is saved in that browser and synchronized to every participant when the match begins.
 
 On a phone or tablet, the same actions appear as on-screen controls when a match begins. Multiple controls can be held at once, including moving while firing or charging a grenade. Landscape orientation and fullscreen mode provide the clearest view. If a mobile browser does not support element fullscreen, the interface automatically uses an equivalent viewport-filling layout.
 

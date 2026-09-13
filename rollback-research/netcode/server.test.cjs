@@ -218,6 +218,34 @@ test('only the host controls a lobby and both original modes are preserved in ma
   assert.match((await host.next('error')).message, /cannot be changed/);
 });
 
+test('synchronizes each player character appearance and freezes it into the match configuration', async (t) => {
+  const { host, guest } = await roomPair(t);
+  const initial = await host.next('room', (message) => message.players.length === 2);
+  assert.deepEqual(initial.players.map((player) => player.profile), [
+    { color: 2, shirt: 1, hat: 1 },
+    { color: 5, shirt: 1, hat: 1 },
+  ]);
+  guest.send({ type: 'profile', color: 10, shirt: 15, hat: 24 });
+  const customized = await host.next('room', (message) => message.players[1]?.profile?.hat === 24);
+  assert.deepEqual(customized.players[1].profile, { color: 10, shirt: 15, hat: 24 });
+  for (const profile of [
+    { color: 0, shirt: 15, hat: 24 },
+    { color: 10, shirt: 16, hat: 24 },
+    { color: 10, shirt: 15, hat: '24' },
+    { color: 10, shirt: 15, hat: 24, slot: 0 },
+  ]) {
+    guest.send({ type: 'profile', ...profile });
+    assert.match((await guest.next('error')).message, /valid character/);
+  }
+  const load = await loadMatch(host, [host, guest]);
+  assert.deepEqual(load.profiles, [
+    { name: 'Host', color: 2, shirt: 1, hat: 1, gun: 1, perk: 7 },
+    { name: 'Guest', color: 10, shirt: 15, hat: 24, gun: 1, perk: 7 },
+  ]);
+  guest.send({ type: 'profile', color: 1, shirt: 1, hat: 1 });
+  assert.match((await guest.next('error')).message, /cannot be changed/);
+});
+
 test('waits for every browser to load, finalizes authoritative frame rows and isolates matches', async (t) => {
   const { app, host, guest } = await roomPair(t);
   const observer = await app.peer();

@@ -89,7 +89,7 @@ _root.netStart = function(config)
    while(idx < 4)
    {
       var prefix = "p" + (idx+1);
-      var profile = config.profiles[idx];
+      var profile = config.profiles == undefined || config.profiles[idx] == undefined ? {} : config.profiles[idx];
       _root[prefix+"name"] = profile.name == undefined ? "Player " + (idx+1) : String(profile.name);
       _root[prefix+"color"] = _root.__netInt(profile.color,colors[idx],1,10);
       _root[prefix+"shirt"] = _root.__netInt(profile.shirt,1,1,15);
@@ -177,12 +177,13 @@ _root.netDebugInput = function()
 };
 _root.netState = function()
 {
-   var result = {frame:_root.__netFrame,ticks:_root.__netTicks,timeline:_root._currentframe,rng:_root.__netSeed,gamewin:_root.gamewin,gamewincountdown:_root.gamewincountdown,paused:_root.GAMEPAUSED,map:_root.mapnumber,mode:_root.gamemode,timer:getTimer(),players:[]};
+   var result = {frame:_root.__netFrame,ticks:_root.__netTicks,timeline:_root._currentframe,rng:_root.__netSeed,gamewin:_root.gamewin,gamewincountdown:_root.gamewincountdown,paused:_root.GAMEPAUSED,map:_root.mapnumber,mode:_root.gamemode,timer:getTimer(),players:[],profiles:[]};
    var p = 1;
    while(p <= 4)
    {
       var player = _root["player" + p];
       result.players.push(player == undefined ? null : _root.__netScalars(player));
+      result.profiles.push({name:_root["p"+p+"name"],color:_root["p"+p+"color"],shirt:_root["p"+p+"shirt"],hat:_root["p"+p+"hat"]});
       p++;
    }
    _root.__netHash = 1;

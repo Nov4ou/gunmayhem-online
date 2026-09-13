@@ -4,6 +4,10 @@ const keys = new Map([['KeyW',1],['ArrowUp',1],['KeyA',2],['ArrowLeft',2],['KeyS
 const held = new Set();
 const touchHeld = new Set(), touchPointers = new Map();
 const palette = ['#77b4f7','#ef7061','#f6ca64','#8bd096'];
+const skinPalette=['#19c8e8','#1768eb','#8a58db','#ec69dc','#ff7474','#e71818','#fff176','#ffc20d','#b9ff18','#41cf69'];
+const shirtNames=['Shirtless','White Suit','Gray Suit','Professional Killer','Fancy Tux','Leather Jacket','Pompous Shirt','Pirate','Kung Fu Master','Caveman','Santa Claus','Exterminator','Jumpsuit','Rambo','Hawaiian'];
+const hatNames=['Too Cool for Hats','Mohawk','Santa Claus','White Fedora','Dark Gray Fedora','Fancy Top Hat','Caveman','Crazy Clown','Pylon Hat','Straw Hat','Pompous Hat','Viking Helmet','Rambo','Spikey Helmet','ARRRRRRGH!','Goldfish Bowl','Bunny Ears','Army Helmet','The Duke','Pot Head','Slick Hair','Female Hair','The Very Best','Crown'];
+let savedProfile=null;
 let socket, myId, room, match, iframe, bootConfig, reconnectTimer, pingTimer, reconnectAttempts = 0, volume = 1, started = false, latestFrame = 0, stateCache;
 let pingSequence = 0, latencyMs = null, inputLatencyMs = null, inputLatencyP95Ms = null, inputLatencyCount = 0, inputProbeSequence = 0;
 const pingSent = new Map(), latencySamples = [];
@@ -22,10 +26,14 @@ function showSpikeButton(summary){const button=ensureSpikeButton();button.hidden
 function hideSpikeButton(){if(spikeButton)spikeButton.hidden=true;}
 function browserDebugEvent(type,extra={}){runtime('debugEvent',{event:{type,wallMs:Date.now(),visibility:document.visibilityState,...extra}});}
 try { $('name').value = localStorage.getItem('gunmayhem-name') || 'Player'; } catch {}
+try {const value=JSON.parse(localStorage.getItem('gunmayhem-profile-v1'));if(value&&Number.isInteger(value.color)&&value.color>=1&&value.color<=10&&Number.isInteger(value.shirt)&&value.shirt>=1&&value.shirt<=15&&Number.isInteger(value.hat)&&value.hat>=1&&value.hat<=24)savedProfile={color:value.color,shirt:value.shirt,hat:value.hat};} catch {}
 const mapNames=['No Name','Dessert Duel','Underwater Slaughter','Solar Shootout','Great Wall Brawl','Magic Mushroom Mountain Melee','Desert Destruction','Hovering Houses','Midnight Wood','Polar Pwnage','Grim City','Safari Showdown'];
 const modeNames={'last-man-standing':'LAST MAN STANDING','gun-game':'GUN GAME'};
 for (let i=1;i<=12;i++) $('map').add(new Option(`${i}. ${mapNames[i-1]}`,i));
 for (let i=1;i<=20;i++) $('lives').add(new Option(`${i}`,i));
+$('skin-shirt').replaceChildren(...shirtNames.map((name,index)=>new Option(`${index+1}. ${name}`,index+1)));
+$('skin-hat').replaceChildren(...hatNames.map((name,index)=>new Option(`${index+1}. ${name}`,index+1)));
+$('skin-colors').replaceChildren(...skinPalette.map((color,index)=>{const button=document.createElement('button');button.type='button';button.className='skin-color';button.dataset.color=String(index+1);button.style.setProperty('--skin-color',color);button.setAttribute('role','radio');button.setAttribute('aria-label',`Color ${index+1}`);button.title=`Color ${index+1}`;return button;}));
 $('lives').value = '10';
 if (joinAfterConnect) $('room-code').value = joinAfterConnect;
 function notice(message='') { $('notice').textContent = message; }
@@ -120,7 +128,9 @@ function updateRoom(data) {
     const p=data.players.find(p=>p.slot===i), li=document.createElement('li');
     li.style.setProperty('--seat',palette[i]);
     if (!p) {li.className='empty';li.textContent='Awaiting player';return li;}
-    for (const [cls,text] of [['player-number',`PLAYER ${i+1}`],['player-name',p.name],['player-meta',[p.id===myId?'You':'',p.id===data.host?'Host':''].filter(Boolean).join(' · ')||'Ready']]) {const span=document.createElement('span');span.className=cls;span.textContent=text;li.append(span);}
+    for (const [cls,text] of [['player-number',`PLAYER ${i+1}`],['player-name',p.name]]) {const span=document.createElement('span');span.className=cls;span.textContent=text;li.append(span);}
+    const appearance=document.createElement('span');appearance.className='player-appearance';const swatch=document.createElement('i');swatch.style.setProperty('--skin-color',skinPalette[(p.profile?.color||1)-1]);swatch.setAttribute('aria-hidden','true');appearance.append(swatch,document.createTextNode(`${shirtNames[(p.profile?.shirt||1)-1]} · ${hatNames[(p.profile?.hat||1)-1]}`));li.append(appearance);
+    const meta=document.createElement('span');meta.className='player-meta';meta.textContent=[p.id===myId?'You':'',p.id===data.host?'Host':''].filter(Boolean).join(' · ')||'Ready';li.append(meta);
     return li;
   }));
   $('mode').value=data.settings.mode; $('map').value=data.settings.map; $('lives').value=data.settings.lives;
@@ -129,8 +139,10 @@ function updateRoom(data) {
   document.querySelector('.touch-grenade').hidden=data.settings.mode==='gun-game';
   $('grenade-help').hidden=data.settings.mode==='gun-game';
   const active=data.phase!=='lobby';
+  if(mine?.profile){$('skin-shirt').value=mine.profile.shirt;$('skin-hat').value=mine.profile.hat;for(const button of document.querySelectorAll('.skin-color')){const selected=Number(button.dataset.color)===mine.profile.color;button.classList.toggle('selected',selected);button.setAttribute('aria-checked',String(selected));}}
   document.body.classList.toggle('playing',active||showingResult);
   $('mode').disabled=$('map').disabled=$('lives').disabled=!host||active;
+  $('skin-shirt').disabled=$('skin-hat').disabled=active;for(const button of document.querySelectorAll('.skin-color'))button.disabled=active;
   $('start').disabled=!host||data.players.length<2||active;
   $('start').textContent=active?'Match in Progress':showingResult?'Play Again':'Start Match';
   $('stop').hidden=!host||!active;
@@ -154,12 +166,12 @@ function connect() {
     let data;try {data=JSON.parse(event.data);}catch{return;}
     if(data.type==='pong') receiveLatency(data);
     else if(data.type==='hello') {myId=data.id;if(joinAfterConnect){send('join',{room:joinAfterConnect,name:$('name').value});joinAfterConnect=null;}}
-    else if(data.type==='joined') {myId=data.id;notice('');}
+    else if(data.type==='joined') {myId=data.id;notice('');if(savedProfile)send('profile',savedProfile);}
     else if(data.type==='room') updateRoom(data);
     else if(data.type==='left') {const reason=runtimeError;runtimeError='';stopGame(reason);room=null;$('lobby').hidden=true;$('entrance').hidden=false;history.replaceState(null,'',location.pathname);}
     else if(data.type==='error') notice(data.message);
     else if(data.type==='load') {
-      hideSpikeButton();stopGame('');match=data.match;bootConfig={seed:data.seed,mode:data.settings.mode,map:data.settings.map,lives:data.settings.lives,players:data.players};
+      hideSpikeButton();stopGame('');match=data.match;bootConfig={seed:data.seed,mode:data.settings.mode,map:data.settings.map,lives:data.settings.lives,players:data.players,profiles:data.profiles};
       $('play-section').hidden=false;document.body.classList.add('playing');setOverlay('Loading the original game…');$('match-status').textContent='Loading…';
       iframe=document.createElement('iframe');iframe.title='Original Gun Mayhem game';iframe.allow='autoplay; fullscreen';iframe.src='./runtime.html';$('game-mount').replaceChildren(iframe);
     }
@@ -205,6 +217,10 @@ window.addEventListener('resize',()=>browserDebugEvent('resize',{width:innerWidt
 window.addEventListener('online',()=>browserDebugEvent('online'));
 window.addEventListener('offline',()=>browserDebugEvent('offline'));
 function saveName(){try{localStorage.setItem('gunmayhem-name',$('name').value.trim()||'Player');}catch{}}
+function saveProfile(){
+ const profile={color:Number(document.querySelector('.skin-color.selected')?.dataset.color||1),shirt:Number($('skin-shirt').value),hat:Number($('skin-hat').value)};
+ savedProfile=profile;try{localStorage.setItem('gunmayhem-profile-v1',JSON.stringify(profile));}catch{}send('profile',profile);
+}
 $('create').onclick=()=>{saveName();send('create',{name:$('name').value});};
 $('room-form').onsubmit=event=>{event.preventDefault();saveName();send('join',{room:$('room-code').value.trim().toUpperCase(),name:$('name').value});};
 $('leave').onclick=()=>{send('leave');stopGame('');room=null;$('lobby').hidden=true;$('entrance').hidden=false;history.replaceState(null,'',location.pathname);};
@@ -212,6 +228,8 @@ $('start').onclick=()=>{notice('');send('start');};
 $('stop').onclick=()=>send('stop');
 $('back').onclick=()=>{stopGame('');if(room)updateRoom(room);};
 for(const id of ['mode','map','lives'])$(id).onchange=()=>send('settings',{mode:$('mode').value,map:Number($('map').value),lives:Number($('lives').value)});
+for(const button of document.querySelectorAll('.skin-color'))button.onclick=()=>{for(const item of document.querySelectorAll('.skin-color'))item.classList.toggle('selected',item===button);saveProfile();};
+for(const id of ['skin-shirt','skin-hat'])$(id).onchange=saveProfile;
 $('invite').onclick=async()=>{if(!room)return;const url=new URL(location.href);url.search=`?room=${room.room}`;try{await navigator.clipboard.writeText(url.href);notice('The invitation link has been copied. Share it with the other participants.');}catch{const input=document.createElement('input');input.value=url.href;document.body.append(input);input.select();const copied=document.execCommand('copy');input.remove();notice(copied?'The invitation link has been copied.':`Invitation link: ${url.href}`);}};
 $('sound').onclick=()=>{volume=volume?0:1;if(volume)unlockAudio();runtime('volume',{volume});$('sound').textContent=`Sound: ${volume?'Enabled':'Disabled'}`;};
 const touchCapable=('ontouchstart' in window)||matchMedia('(pointer:coarse)').matches;
@@ -229,7 +247,7 @@ $('fullscreen').onclick=async()=>{
 };
 document.addEventListener('fullscreenchange',()=>{$('fullscreen').textContent=document.fullscreenElement?'Exit Fullscreen':'Fullscreen';if(!document.fullscreenElement)try{screen.orientation?.unlock?.();}catch{}});
 // Read-only diagnostics used by the cross-browser synchronization checks.
-window.gunmayhemDiagnostics=()=>({room:room?.room,match,started,frame:latestFrame,state:stateCache,inputMask:mask(),touchCapable,latencyMs,inputLatencyMs,inputLatencyP95Ms,inputLatencyCount,rollback:iframe?.contentWindow?.rollbackDiagnostics?.()??null});
+window.gunmayhemDiagnostics=()=>({room:room?.room,match,started,frame:latestFrame,state:stateCache,inputMask:mask(),touchCapable,profiles:room?.players?.map(player=>player.profile),latencyMs,inputLatencyMs,inputLatencyP95Ms,inputLatencyCount,rollback:iframe?.contentWindow?.rollbackDiagnostics?.()??null});
 window.gunmayhemSpikeReport=()=>iframe?.contentWindow?.gunmayhemSpikeReport?.()??null;
 window.gunmayhemSpikeDownload=()=>{
  const report=window.gunmayhemSpikeReport();if(!report){notice('No performance spike has been captured yet.');return false;}

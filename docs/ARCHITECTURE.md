@@ -21,6 +21,8 @@ The ActionScript bridge overrides the input lookup used by the game and supplies
 
 Room settings select one of the original custom-game implementations before root frame 10 starts: mode 1 is Last Man Standing and mode 4 is Gun Game. Last Man Standing uses the configured lives value. Gun Game retains its original fixed rules: unlimited respawns, no grenades, crates, or power-ups, one weapon upgrade per elimination, and victory after completing level 16. The networking layer synchronizes inputs for both modes without recreating either ruleset.
 
+Each room member also owns an appearance profile containing one original color, outfit, and headwear identifier. Profile changes are validated and broadcast while the room is in the lobby. The server freezes the profiles into the match load message, and the ActionScript bridge applies the same values before root frame 10 starts on every client. Weapon and perk defaults remain fixed so appearance selection cannot change match rules.
+
 ## Authoritative lockstep
 
 The server's `LockstepRelay` owns the next frame number. Clients may queue input within a bounded future window. While a row remains pending, its owner may revise that input; after finalization the row is immutable and late messages are discarded.

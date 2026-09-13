@@ -9,6 +9,7 @@ const { WebSocketServer, WebSocket } = require('ws');
 const { LockstepRelay, ProtocolError } = require('./rollback-inputs.js');
 
 const FPS = 35;
+const DEFAULT_COLORS = [2, 5, 8, 10];
 const MIME = {
   '.html': 'text/html; charset=utf-8',
   '.css': 'text/css; charset=utf-8',
@@ -139,7 +140,7 @@ function createServer(options = {}) {
       type: 'room',
       room: room.code,
       host: room.host,
-      players: room.players.map(({ id, name, slot }) => ({ id, name, slot })),
+      players: room.players.map(({ id, name, slot, profile }) => ({ id, name, slot, profile: { ...profile } })),
       phase: room.phase,
       settings: { ...room.settings },
     };
@@ -187,6 +188,7 @@ function createServer(options = {}) {
     client.name = name;
     client.room = room;
     client.slot = room.players.length;
+    client.profile = { color: DEFAULT_COLORS[client.slot], shirt: 1, hat: 1 };
     client.mask = 0;
     room.players.push(client);
     if (!room.host) room.host = client.id;
@@ -257,7 +259,17 @@ function createServer(options = {}) {
     }
     const room = client.room;
     if (!room) return fail(client, 'Join a room before performing this action.');
-    if (message.type === 'settings') {
+    if (message.type === 'profile') {
+      if (room.phase !== 'lobby') return fail(client, 'Character appearance cannot be changed after the match has started.');
+      if (!Number.isInteger(message.color) || message.color < 1 || message.color > 10 ||
+          !Number.isInteger(message.shirt) || message.shirt < 1 || message.shirt > 15 ||
+          !Number.isInteger(message.hat) || message.hat < 1 || message.hat > 24 ||
+          Object.keys(message).some((key) => !['type', 'color', 'shirt', 'hat'].includes(key))) {
+        return fail(client, 'Select a valid character color, outfit, and headwear option.');
+      }
+      client.profile = { color: message.color, shirt: message.shirt, hat: message.hat };
+      updateRoom(room);
+    } else if (message.type === 'settings') {
       if (room.host !== client.id) return fail(client, 'Only the host may modify the match settings.');
       if (room.phase !== 'lobby') return fail(client, 'Match settings cannot be changed after the match has started.');
       if (!['last-man-standing', 'gun-game'].includes(message.mode) ||
@@ -280,7 +292,10 @@ function createServer(options = {}) {
       room.hashes.clear();
       for (const player of room.players) { player.loaded = false; player.mask = 0; player.ack = 0; player.finishedFrame = null; }
       updateRoom(room);
-      broadcast(room, { type: 'load', match: room.match, seed: room.seed, settings: { ...room.settings }, players: room.players.length });
+      broadcast(room, {
+        type: 'load', match: room.match, seed: room.seed, settings: { ...room.settings }, players: room.players.length,
+        profiles: room.players.map((player) => ({ name: player.name, ...player.profile, gun: 1, perk: 7 })),
+      });
     } else if (message.type === 'stop') {
       if (room.host !== client.id) return fail(client, 'Only the host may end the match.');
       if (room.phase === 'lobby') return fail(client, 'There is no match currently in progress.');

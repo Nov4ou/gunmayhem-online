@@ -3,6 +3,7 @@ const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('n
 const {chromium}=require('playwright');
 const clientCount=Number(process.env.GM_NETWORK_CLIENTS||2),duration=Number(process.env.GM_NETWORK_SECONDS||12);
 const gameMode=process.env.GM_GAME_MODE||'last-man-standing';
+const testProfiles=process.env.GM_TEST_PROFILES?JSON.parse(process.env.GM_TEST_PROFILES):[{color:1,shirt:15,hat:24},{color:10,shirt:2,hat:3},{color:7,shirt:8,hat:15},{color:4,shirt:11,hat:18}];
 const configuredDelays=(process.env.GM_NETWORK_DELAYS||process.env.GM_NETWORK_DELAY||'75').split(',').map(Number);
 const delays=Array.from({length:clientCount},(_,i)=>configuredDelays[i]??configuredDelays.at(-1));
 assert(Number.isInteger(clientCount)&&clientCount>=2&&clientCount<=4,'Expected two to four browser clients');
@@ -38,6 +39,10 @@ const out=path.join(__dirname,'results',process.env.GM_NETWORK_LABEL||'network')
   const room=await pages[0].locator('#room-title').textContent();
   for(const page of pages.slice(1)){await page.locator('#room-code').fill(room);await page.locator('button[type="submit"]').click();}
   await pages[0].waitForFunction(count=>[...document.querySelectorAll('#players li')].filter(item=>!item.classList.contains('empty')).length===count,clientCount);
+  for(let i=0;i<clientCount;i++){
+   const profile=testProfiles[i];await pages[i].locator(`.skin-color[data-color="${profile.color}"]`).click();await pages[i].locator('#skin-shirt').selectOption(String(profile.shirt));await pages[i].locator('#skin-hat').selectOption(String(profile.hat));
+  }
+  await Promise.all(pages.map(page=>page.waitForFunction(expected=>JSON.stringify(gunmayhemDiagnostics().profiles)===JSON.stringify(expected),testProfiles.slice(0,clientCount))));
   await pages[0].waitForFunction(()=>!document.getElementById('start').disabled);await pages[0].locator('#start').click();
   await Promise.all(pages.map(p=>p.waitForFunction(()=>gunmayhemDiagnostics().started,{},{timeout:90000})));
   for(let i=0;i<duration*2;i++){
@@ -48,7 +53,7 @@ const out=path.join(__dirname,'results',process.env.GM_NETWORK_LABEL||'network')
   report.clients=await Promise.all(pages.map(async(p,i)=>{
    const parent=await p.evaluate(()=>({diagnostics:gunmayhemDiagnostics(),states:testStates,frames:frameTimes,messages:runtimeMessages,notice:document.getElementById('notice').textContent,overlay:document.getElementById('overlay-text').textContent}));
    const runtimeFrame=p.frames().find(f=>f.url().includes('runtime.html'));
-   const runtime=runtimeFrame?await runtimeFrame.evaluate(()=>({diagnostics:rollbackDiagnostics(),nativeMode:call('netState').mode})):null;
+   const runtime=runtimeFrame?await runtimeFrame.evaluate(()=>{const state=call('netState');return{diagnostics:rollbackDiagnostics(),nativeMode:state.mode,nativeProfiles:state.profiles};}):null;
    await p.screenshot({path:path.join(out,`client-${i}.png`)});
    return{parent,runtime};
   }));
@@ -58,6 +63,7 @@ const out=path.join(__dirname,'results',process.env.GM_NETWORK_LABEL||'network')
   for(const c of report.clients){
    assert(c.parent.diagnostics.started,JSON.stringify(c.parent));
    assert.equal(c.runtime?.nativeMode,gameMode==='gun-game'?4:1,'The SWF started the wrong original game mode');
+   assert.deepEqual(c.runtime?.nativeProfiles.slice(0,clientCount).map(({color,shirt,hat})=>({color,shirt,hat})),testProfiles.slice(0,clientCount),'The SWF received the wrong character appearance');
    assert(c.runtime,'Game iframe was removed: '+JSON.stringify(c.parent));
    assert.equal(c.runtime.diagnostics.mode,'lockstep');
    assert.equal(c.runtime.diagnostics.metrics.rollbacks,0,'Production lockstep must not replay predicted history');
