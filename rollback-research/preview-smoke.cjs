@@ -2,10 +2,12 @@
 const {chromium}=require('playwright'),assert=require('node:assert/strict');
 (async()=>{
  const browser=await chromium.launch({headless:true});
- const page=await browser.newPage({viewport:{width:1400,height:900},deviceScaleFactor:1});
- const errors=[];page.on('console',message=>errors.push(`${message.type()}: ${message.text()}`));page.on('pageerror',error=>errors.push(String(error)));
- await page.goto(process.env.GM_URL||'http://127.0.0.1:3003/',{waitUntil:'domcontentloaded'});
- await page.click('#create');
+ try{
+  const page=await browser.newPage({viewport:{width:1400,height:900},deviceScaleFactor:1});
+  const errors=[];page.on('console',message=>errors.push(`${message.type()}: ${message.text()}`));page.on('pageerror',error=>errors.push(String(error)));
+  await page.goto(process.env.GM_URL||'http://127.0.0.1:3003/',{waitUntil:'domcontentloaded'});
+  await page.waitForFunction(()=>document.getElementById('connection').textContent==='Connected');
+  await page.click('#create');
  try{await page.locator('.character-preview.ready').waitFor({timeout:30000});}catch(error){
   await page.screenshot({path:'/tmp/gunmayhem-preview-failure.png',fullPage:true});
   const frame=page.frames().find(item=>item.url().includes('preview.html'));
@@ -21,5 +23,5 @@ const {chromium}=require('playwright'),assert=require('node:assert/strict');
  assert.equal(swf.colorFrame,7);assert.equal(swf.shirtFrame,6);assert.equal(swf.hatFrame,8);
  await page.click('#leave');await page.waitForFunction(()=>!document.getElementById('character-preview-frame'));
  console.log(JSON.stringify({ready:true,swf,errors}));
- await browser.close();
+ }finally{await browser.close();}
 })().catch(error=>{console.error(error);process.exitCode=1;});
