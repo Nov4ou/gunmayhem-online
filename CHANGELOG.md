@@ -6,6 +6,13 @@
 - Replace per-checkpoint WebGL resource maps and repeated retained-resource scans with pooled flat tables, checkpoint reference counts, and reusable marks.
 - Make the generated runtime build reproducible and remove deployment-specific values from repository examples.
 
+## 0.23.0
+
+- Added a live lobby preview built from the original character artwork, animation, outfits, and headwear.
+- Added Chinese display-name rendering to the in-game name tags, HUD player cards, and elimination feed.
+- Release the lobby preview runtime when a match begins so it does not consume resources during play.
+- Added browser tests for character preview accuracy, synchronized appearance profiles, and multilingual names.
+
 ## 0.18.1
 
 - Reduced two-player input scheduling from two frames to one. Two- and three-player matches now use one frame; four-player matches use three.

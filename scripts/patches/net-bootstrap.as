@@ -119,6 +119,98 @@ _root.netStart = function(config)
    _root.gotoAndStop(10);
    return true;
 };
+// Lobby-only renderer. It opens the original four-player customization screen,
+// then isolates its first player movie clip so the website can show the exact
+// in-game character instead of maintaining a second approximation of the art.
+_root.__netPreviewApply = function()
+{
+   var panel = _root.menup;
+   var menu = panel == undefined ? undefined : panel.menu1;
+   var player = menu == undefined ? undefined : menu.player;
+   if(player == undefined) return false;
+   if(_root.__netPreviewOriginal == undefined)
+   {
+      _root.__netPreviewOriginal = {panelX:panel._x,panelY:panel._y,menuX:menu._x,menuY:menu._y,playerX:player._x,playerY:player._y,playerScaleX:player._xscale,playerScaleY:player._yscale};
+   }
+   var key;
+   for(key in _root)
+   {
+      if(typeof(_root[key]) == "movieclip" && _root[key]._parent == _root) _root[key]._visible = key == "menup";
+   }
+   for(key in panel)
+   {
+      if(typeof(panel[key]) == "movieclip" && panel[key]._parent == panel) panel[key]._visible = key == "menu1";
+   }
+   for(key in menu)
+   {
+      if(typeof(menu[key]) == "movieclip" && menu[key]._parent == menu) menu[key]._visible = key == "player";
+   }
+   panel._visible = true;
+   menu._visible = true;
+   player._visible = true;
+   panel.setMask(null);
+   menu.setMask(null);
+   player.setMask(null);
+   delete panel.onEnterFrame;
+   delete menu.onEnterFrame;
+   panel._x = 0;
+   panel._y = 0;
+   panel._xscale = 100;
+   panel._yscale = 100;
+   menu._x = 0;
+   menu._y = 0;
+   menu._xscale = 100;
+   menu._yscale = 100;
+   player._x = 450;
+   player._y = 345;
+   player._xscale = 190;
+   player._yscale = 190;
+   var profile = _root.__netPreviewProfile;
+   var color = _root.__netInt(profile.color,1,1,10);
+   player.head.gotoAndStop(color + 1);
+   player.body.gotoAndStop(color + 1);
+   player.leg1.leg.gotoAndStop(color + 1);
+   player.leg2.leg.gotoAndStop(color + 1);
+   player.hand2.hand.gotoAndStop(color + 1);
+   player.gundisplayhand.gotoAndStop(color + 1);
+   player.shirt.gotoAndStop(_root.__netInt(profile.shirt,1,1,15));
+   player.hat.gotoAndStop(_root.__netInt(profile.hat,1,1,24));
+   player.eyes.gotoAndStop(_root.__netInt(profile.hat,1,1,24));
+   player.gundisplay.gotoAndStop(1);
+   return true;
+};
+_root.netPreviewStart = function(profile)
+{
+   _root.__netPreviewProfile = profile == undefined ? {} : profile;
+   _root.savedata2 = {data:{filled:true,musicON:false,soundON:false,def_quality:2,controlarray:_root.__netControls}};
+   _root.gotoAndStop(9);
+   _root.__netPreviewTimer = setInterval(_root.__netPreviewPoll,30);
+   return true;
+};
+_root.__netPreviewPoll = function()
+{
+   if(_root.menup != undefined && _root.menup.menu1 != undefined && _root.menup.menu1.player == undefined)
+   {
+      _root.menup.menu1.gotoAndStop(3);
+   }
+   if(!_root.__netPreviewApply()) return;
+   clearInterval(_root.__netPreviewTimer);
+   _root.__netPreviewTimer = undefined;
+   flash.external.ExternalInterface.call("netPreviewReady");
+};
+_root.netPreviewUpdate = function(profile)
+{
+   _root.__netPreviewProfile = profile == undefined ? {} : profile;
+   return _root.__netPreviewApply();
+};
+_root.netPreviewDebug = function()
+{
+   var panel = _root.menup;
+   var menu = panel == undefined ? undefined : panel.menu1;
+   var player = menu == undefined ? undefined : menu.player;
+   var bounds = player == undefined ? undefined : player.getBounds(_root);
+   return {timeline:_root._currentframe,panel:panel != undefined,panelFrame:panel == undefined ? -1 : panel._currentframe,panelX:panel == undefined ? 0 : panel._x,panelY:panel == undefined ? 0 : panel._y,menu:menu != undefined,menuFrame:menu == undefined ? -1 : menu._currentframe,menuX:menu == undefined ? 0 : menu._x,menuY:menu == undefined ? 0 : menu._y,player:player != undefined,playerX:player == undefined ? 0 : player._x,playerY:player == undefined ? 0 : player._y,playerAlpha:player == undefined ? 0 : player._alpha,playerVisible:player == undefined ? false : player._visible,colorFrame:player == undefined ? -1 : player.head._currentframe,shirtFrame:player == undefined ? -1 : player.shirt._currentframe,hatFrame:player == undefined ? -1 : player.hat._currentframe,bounds:bounds,original:_root.__netPreviewOriginal,timer:_root.__netPreviewTimer};
+};
 _root.__netScalars = function(mc)
 {
    var result = {x:mc._x,y:mc._y,scaleX:mc._xscale,scaleY:mc._yscale,rotation:mc._rotation,alpha:mc._alpha,visible:mc._visible,timeline:mc._currentframe};
@@ -177,13 +269,15 @@ _root.netDebugInput = function()
 };
 _root.netState = function()
 {
-   var result = {frame:_root.__netFrame,ticks:_root.__netTicks,timeline:_root._currentframe,rng:_root.__netSeed,gamewin:_root.gamewin,gamewincountdown:_root.gamewincountdown,paused:_root.GAMEPAUSED,map:_root.mapnumber,mode:_root.gamemode,timer:getTimer(),players:[],profiles:[]};
+   var result = {frame:_root.__netFrame,ticks:_root.__netTicks,timeline:_root._currentframe,rng:_root.__netSeed,gamewin:_root.gamewin,gamewincountdown:_root.gamewincountdown,paused:_root.GAMEPAUSED,map:_root.mapnumber,mode:_root.gamemode,timer:getTimer(),players:[],profiles:[],nameFields:[]};
    var p = 1;
    while(p <= 4)
    {
       var player = _root["player" + p];
       result.players.push(player == undefined ? null : _root.__netScalars(player));
       result.profiles.push({name:_root["p"+p+"name"],color:_root["p"+p+"color"],shirt:_root["p"+p+"shirt"],hat:_root["p"+p+"hat"]});
+      var nameField = player == undefined || player.nametag == undefined ? undefined : player.nametag.nametext;
+      result.nameFields.push(nameField == undefined ? null : {text:nameField.text,embedFonts:nameField.embedFonts,font:nameField.getTextFormat().font,textWidth:nameField.textWidth});
       p++;
    }
    _root.__netHash = 1;
@@ -201,5 +295,8 @@ flash.external.ExternalInterface.addCallback("netInput",_root,_root.netInput);
 flash.external.ExternalInterface.addCallback("netState",_root,_root.netState);
 flash.external.ExternalInterface.addCallback("netTickState",_root,_root.netTickState);
 flash.external.ExternalInterface.addCallback("netDebugInput",_root,_root.netDebugInput);
+flash.external.ExternalInterface.addCallback("netPreviewStart",_root,_root.netPreviewStart);
+flash.external.ExternalInterface.addCallback("netPreviewUpdate",_root,_root.netPreviewUpdate);
+flash.external.ExternalInterface.addCallback("netPreviewDebug",_root,_root.netPreviewDebug);
 stop();
 flash.external.ExternalInterface.call("netReady");

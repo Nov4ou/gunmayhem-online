@@ -8,7 +8,7 @@ const skinPalette=['#19c8e8','#1768eb','#8a58db','#ec69dc','#ff7474','#e71818','
 const shirtNames=['Shirtless','White Suit','Gray Suit','Professional Killer','Fancy Tux','Leather Jacket','Pompous Shirt','Pirate','Kung Fu Master','Caveman','Santa Claus','Exterminator','Jumpsuit','Rambo','Hawaiian'];
 const hatNames=['Too Cool for Hats','Mohawk','Santa Claus','White Fedora','Dark Gray Fedora','Fancy Top Hat','Caveman','Crazy Clown','Pylon Hat','Straw Hat','Pompous Hat','Viking Helmet','Rambo','Spikey Helmet','ARRRRRRGH!','Goldfish Bowl','Bunny Ears','Army Helmet','The Duke','Pot Head','Slick Hair','Female Hair','The Very Best','Crown'];
 let savedProfile=null;
-let socket, myId, room, match, iframe, bootConfig, reconnectTimer, pingTimer, reconnectAttempts = 0, volume = 1, started = false, latestFrame = 0, stateCache;
+let socket, myId, room, match, iframe, previewFrame, latestPreviewProfile={color:1,shirt:1,hat:1}, bootConfig, reconnectTimer, pingTimer, reconnectAttempts = 0, volume = 1, started = false, latestFrame = 0, stateCache;
 let pingSequence = 0, latencyMs = null, inputLatencyMs = null, inputLatencyP95Ms = null, inputLatencyCount = 0, inputProbeSequence = 0;
 const pingSent = new Map(), latencySamples = [];
 let showingResult = false, resultFrame = null, runtimeError = '';
@@ -75,6 +75,13 @@ function receiveLatency(data) {
   refreshLatency();
 }
 function runtime(type,data={}) { iframe?.contentWindow?.postMessage({source:'gunmayhem-app',type,...data},location.origin); }
+function ensurePreview(){
+ if(previewFrame)return;
+ $('character-preview').classList.remove('ready');$('character-preview-loading').textContent='Preparing preview…';
+ previewFrame=document.createElement('iframe');previewFrame.id='character-preview-frame';previewFrame.title='Live character preview';previewFrame.tabIndex=-1;previewFrame.src='./preview.html';$('character-preview').prepend(previewFrame);
+}
+function destroyPreview(){previewFrame?.remove();previewFrame=null;$('character-preview').classList.remove('ready');}
+function previewProfile(profile){latestPreviewProfile=profile;previewFrame?.contentWindow?.postMessage({source:'gunmayhem-app',type:'previewProfile',profile},location.origin);}
 function unlockAudio() {try{iframe?.contentWindow?.unlockGameAudio?.();}catch{}}
 function mask() { let bits=0; for (const key of held) bits |= keys.get(key)||0; for (const key of touchHeld) bits |= keys.get(key)||0; return bits; }
 function refreshTouchButtons() { for (const button of document.querySelectorAll('.touch-button')) button.classList.toggle('active',touchHeld.has(button.dataset.code)); }
@@ -122,6 +129,7 @@ function updateRoom(data) {
   room=data; $('entrance').hidden=true; $('lobby').hidden=false;
   $('room-title').textContent=data.room;
   const mine=data.players.find(p=>p.id===myId), host=data.host===myId;
+  const active=data.phase!=='lobby';if(active)destroyPreview();else ensurePreview();
   $('seat-label').textContent=`You are Player ${(mine?.slot??0)+1}`;
   $('seat-label').style.color=palette[mine?.slot??0];
   $('players').replaceChildren(...Array.from({length:4},(_,i)=>{
@@ -138,8 +146,7 @@ function updateRoom(data) {
   $('lives-setting').hidden=data.settings.mode==='gun-game';
   document.querySelector('.touch-grenade').hidden=data.settings.mode==='gun-game';
   $('grenade-help').hidden=data.settings.mode==='gun-game';
-  const active=data.phase!=='lobby';
-  if(mine?.profile){$('skin-shirt').value=mine.profile.shirt;$('skin-hat').value=mine.profile.hat;for(const button of document.querySelectorAll('.skin-color')){const selected=Number(button.dataset.color)===mine.profile.color;button.classList.toggle('selected',selected);button.setAttribute('aria-checked',String(selected));}}
+  if(mine?.profile){$('skin-shirt').value=mine.profile.shirt;$('skin-hat').value=mine.profile.hat;for(const button of document.querySelectorAll('.skin-color')){const selected=Number(button.dataset.color)===mine.profile.color;button.classList.toggle('selected',selected);button.setAttribute('aria-checked',String(selected));}previewProfile(mine.profile);}
   document.body.classList.toggle('playing',active||showingResult);
   $('mode').disabled=$('map').disabled=$('lives').disabled=!host||active;
   $('skin-shirt').disabled=$('skin-hat').disabled=active;for(const button of document.querySelectorAll('.skin-color'))button.disabled=active;
@@ -157,7 +164,7 @@ function connect() {
   socket.onclose=()=>{
     stopLatency();
     $('connection').textContent='Connection lost. Reconnecting…';$('connection').className='connection';$('create').disabled=true;
-    stopGame('The connection was interrupted and the match has ended. You may rejoin the room after the connection is restored.');
+    stopGame('The connection was interrupted and the match has ended. You may rejoin the room after the connection is restored.');destroyPreview();
     room=null;$('entrance').hidden=false;$('lobby').hidden=true;
     reconnectTimer=setTimeout(connect,Math.min(1000*2**reconnectAttempts++,10000));
   };
@@ -168,10 +175,10 @@ function connect() {
     else if(data.type==='hello') {myId=data.id;if(joinAfterConnect){send('join',{room:joinAfterConnect,name:$('name').value});joinAfterConnect=null;}}
     else if(data.type==='joined') {myId=data.id;notice('');if(savedProfile)send('profile',savedProfile);}
     else if(data.type==='room') updateRoom(data);
-    else if(data.type==='left') {const reason=runtimeError;runtimeError='';stopGame(reason);room=null;$('lobby').hidden=true;$('entrance').hidden=false;history.replaceState(null,'',location.pathname);}
+    else if(data.type==='left') {const reason=runtimeError;runtimeError='';stopGame(reason);destroyPreview();room=null;$('lobby').hidden=true;$('entrance').hidden=false;history.replaceState(null,'',location.pathname);}
     else if(data.type==='error') notice(data.message);
     else if(data.type==='load') {
-      hideSpikeButton();stopGame('');match=data.match;bootConfig={seed:data.seed,mode:data.settings.mode,map:data.settings.map,lives:data.settings.lives,players:data.players,profiles:data.profiles};
+      hideSpikeButton();stopGame('');destroyPreview();match=data.match;bootConfig={seed:data.seed,mode:data.settings.mode,map:data.settings.map,lives:data.settings.lives,players:data.players,profiles:data.profiles};
       $('play-section').hidden=false;document.body.classList.add('playing');setOverlay('Loading the original game…');$('match-status').textContent='Loading…';
       iframe=document.createElement('iframe');iframe.title='Original Gun Mayhem game';iframe.allow='autoplay; fullscreen';iframe.src='./runtime.html';$('game-mount').replaceChildren(iframe);
     }
@@ -219,17 +226,18 @@ window.addEventListener('offline',()=>browserDebugEvent('offline'));
 function saveName(){try{localStorage.setItem('gunmayhem-name',$('name').value.trim()||'Player');}catch{}}
 function saveProfile(){
  const profile={color:Number(document.querySelector('.skin-color.selected')?.dataset.color||1),shirt:Number($('skin-shirt').value),hat:Number($('skin-hat').value)};
- savedProfile=profile;try{localStorage.setItem('gunmayhem-profile-v1',JSON.stringify(profile));}catch{}send('profile',profile);
+ savedProfile=profile;try{localStorage.setItem('gunmayhem-profile-v1',JSON.stringify(profile));}catch{}previewProfile(profile);send('profile',profile);
 }
 $('create').onclick=()=>{saveName();send('create',{name:$('name').value});};
 $('room-form').onsubmit=event=>{event.preventDefault();saveName();send('join',{room:$('room-code').value.trim().toUpperCase(),name:$('name').value});};
-$('leave').onclick=()=>{send('leave');stopGame('');room=null;$('lobby').hidden=true;$('entrance').hidden=false;history.replaceState(null,'',location.pathname);};
+$('leave').onclick=()=>{send('leave');stopGame('');destroyPreview();room=null;$('lobby').hidden=true;$('entrance').hidden=false;history.replaceState(null,'',location.pathname);};
 $('start').onclick=()=>{notice('');send('start');};
 $('stop').onclick=()=>send('stop');
 $('back').onclick=()=>{stopGame('');if(room)updateRoom(room);};
 for(const id of ['mode','map','lives'])$(id).onchange=()=>send('settings',{mode:$('mode').value,map:Number($('map').value),lives:Number($('lives').value)});
 for(const button of document.querySelectorAll('.skin-color'))button.onclick=()=>{for(const item of document.querySelectorAll('.skin-color'))item.classList.toggle('selected',item===button);saveProfile();};
 for(const id of ['skin-shirt','skin-hat'])$(id).onchange=saveProfile;
+window.addEventListener('message',event=>{if(event.origin!==location.origin||event.source!==previewFrame?.contentWindow||event.data?.source!=='gunmayhem-preview')return;if(event.data.type==='ready'){$('character-preview').classList.add('ready');previewProfile(latestPreviewProfile);}else if(event.data.type==='error')$('character-preview-loading').textContent='Preview unavailable';});
 $('invite').onclick=async()=>{if(!room)return;const url=new URL(location.href);url.search=`?room=${room.room}`;try{await navigator.clipboard.writeText(url.href);notice('The invitation link has been copied. Share it with the other participants.');}catch{const input=document.createElement('input');input.value=url.href;document.body.append(input);input.select();const copied=document.execCommand('copy');input.remove();notice(copied?'The invitation link has been copied.':`Invitation link: ${url.href}`);}};
 $('sound').onclick=()=>{volume=volume?0:1;if(volume)unlockAudio();runtime('volume',{volume});$('sound').textContent=`Sound: ${volume?'Enabled':'Disabled'}`;};
 const touchCapable=('ontouchstart' in window)||matchMedia('(pointer:coarse)').matches;

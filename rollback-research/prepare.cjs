@@ -12,7 +12,8 @@ fs.copyFileSync(path.join(__dirname,'netcode/rollback-inputs.js'),path.join(__di
 fs.writeFileSync(path.join(build,'package.json'),JSON.stringify({
  name:'gun-mayhem-lockstep-server',version:project.version,private:true,type:'commonjs',main:'server.js',dependencies:{ws:project.dependencies.ws}
 },null,2)+'\n');
-for(const file of ['index.html','style.css','gunmayhem-net.swf'])fs.copyFileSync(path.join(source,file),path.join(output,file));
+for(const file of ['index.html','style.css','gunmayhem-net.swf','preview.html','preview.js'])fs.copyFileSync(path.join(source,file),path.join(output,file));
+fs.cpSync(path.join(source,'fonts'),path.join(output,'fonts'),{recursive:true});
 for(const file of ['ruffle.js',CORE_FILE,WASM_FILE,FALLBACK_CORE_FILE,FALLBACK_WASM_FILE,'LICENSE_APACHE','LICENSE_MIT']){
  let data=fs.readFileSync(path.resolve(__dirname,'../node_modules/@ruffle-rs/ruffle',file));
  if(file===CORE_FILE)data=Buffer.from(patchCore(data.toString()));

@@ -10,7 +10,8 @@ Browser-based multiplayer for the original **Gun Mayhem** Flash game. Each playe
 - Original graphics, animation, audio, maps, weapons, and 35 FPS simulation
 - Last Man Standing with configurable lives and a reversed 16-level Gun Game weapon progression
 - Twelve original custom-game maps in both modes
-- Per-player selection from the original 10 colors, 15 outfits, and 24 headwear options
+- Per-player selection from the original 10 colors, 15 outfits, and 24 headwear options, with a live preview
+- Chinese and Latin display names in character labels, HUD cards, and the elimination feed
 - Authoritative input lockstep with deterministic random state
 - One-frame input scheduling for two- and three-player matches; three frames for four players
 - Live WebSocket RTT and measured input-to-presentation latency
@@ -45,7 +46,9 @@ Open `http://127.0.0.1:3003/`. `npm start` creates a clean runtime build in `rol
 
 Click the game before playing so the browser can focus the controls and enable audio.
 
-Each participant can select a character color, outfit, and headwear in the room before the host starts the match. The selection is saved in that browser and synchronized to every participant when the match begins.
+Each participant can select a character color, outfit, and headwear in the room before the host starts the match. The lobby renders the selected combination with the original game's character artwork. The selection is saved in that browser and synchronized to every participant when the match begins. The preview runtime is removed during the match so it does not compete with the game for browser resources.
+
+Display names may contain Chinese characters. Player-supplied names use the bundled Noto Sans SC font because the original SWF's embedded font does not contain Chinese glyphs; the rest of the game retains its original typography.
 
 On a phone or tablet, the same actions appear as on-screen controls when a match begins. Multiple controls can be held at once, including moving while firing or charging a grenade. Landscape orientation and fullscreen mode provide the clearest view. If a mobile browser does not support element fullscreen, the interface automatically uses an equivalent viewport-filling layout.
 
@@ -74,6 +77,7 @@ Useful commands:
 | `npm test` | Run server, lockstep, memory, audio, and WebGL tests |
 | `npm run test:mobile` | Run the two-client mobile layout and multi-touch input smoke test |
 | `npm run test:mobile:fallback` | Run the mobile test through Ruffle's scalar WebAssembly fallback |
+| `npm run test:preview` | Verify that lobby appearance changes update the original character preview |
 | `npm run test:network` | Run a multi-browser synchronization test against a local server |
 | `npm run build:swf` | Rebuild the network-enabled SWF with JPEXS FFDec 26.2.1 and a JDK |
 

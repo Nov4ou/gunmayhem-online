@@ -56,7 +56,7 @@ def sha(file):
 
 
 def patch_player_rules(movie):
-    """Apply the spawn shield and reverse the original Gun Game weapon sequence."""
+    """Apply gameplay rules and use a device font for player-supplied names."""
     import tempfile
     with tempfile.TemporaryDirectory(prefix='gunmayhem-shield-') as td:
         td = Path(td)
@@ -90,6 +90,36 @@ def patch_player_rules(movie):
         dst = imported / rel
         dst.parent.mkdir(parents=True, exist_ok=True)
         dst.write_text(text)
+
+        # The original embedded font has no CJK glyphs. Limit the device-font
+        # change to names supplied by players, preserving all other game text.
+        name_font = ('var __netNameFormat = nametag.nametext.getTextFormat();\n'
+                     '__netNameFormat.font = "_sans";\n'
+                     'nametag.nametext.embedFonts = false;\n'
+                     'nametag.nametext.setTextFormat(__netNameFormat);')
+        anchor = ('else\n{\n   nametag.gotoAndStop(1);\n'
+                  '   nametag.nametext.text = displayname;\n}\ntriplejump = false;')
+        if text.count(anchor) != 1:
+            raise RuntimeError('Player name font patch anchor changed')
+        text = text.replace(anchor, anchor[:-len('triplejump = false;')] + name_font + '\ntriplejump = false;', 1)
+        dst.write_text(text)
+
+        for rel, anchor, replacement in [
+            (Path('scripts/DefineSprite_1480/frame_1/DoAction.as'),
+             'updated = false;',
+             'var __netNameFormat = inputname.getTextFormat();\n__netNameFormat.font = "_sans";\ninputname.embedFonts = false;\ninputname.setTextFormat(__netNameFormat);\nupdated = false;'),
+            (Path('scripts/DefineSprite_399_hud_killfeed/frame_1/DoAction.as'),
+             'stop();',
+             'var __netNameFields = [messagebox,messagebox3];\nvar __netNameIndex = 0;\nwhile(__netNameIndex < __netNameFields.length)\n{\n   var __netNameField = __netNameFields[__netNameIndex];\n   var __netNameFormat = __netNameField.getTextFormat();\n   __netNameFormat.font = "_sans";\n   __netNameField.embedFonts = false;\n   __netNameField.setTextFormat(__netNameFormat);\n   __netNameIndex++;\n}\nstop();'),
+        ]:
+            source = exported / rel
+            patched_text = source.read_text()
+            if patched_text.count(anchor) != 1:
+                raise RuntimeError(f'Name font patch anchor changed: {rel}')
+            patched_text = patched_text.replace(anchor, replacement, 1)
+            destination = imported / rel
+            destination.parent.mkdir(parents=True, exist_ok=True)
+            destination.write_text(patched_text)
         patched = td / 'patched.swf'
         subprocess.run(['java', '-jar', str(JAR), '-importScript', str(movie), str(patched), str(imported)], check=True)
         shutil.copyfile(patched, movie)

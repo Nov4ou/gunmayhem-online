@@ -3,6 +3,7 @@ const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('n
 const {chromium}=require('playwright');
 const clientCount=Number(process.env.GM_NETWORK_CLIENTS||2),duration=Number(process.env.GM_NETWORK_SECONDS||12);
 const gameMode=process.env.GM_GAME_MODE||'last-man-standing';
+const testNames=process.env.GM_TEST_NAMES?JSON.parse(process.env.GM_TEST_NAMES):Array.from({length:clientCount},(_,i)=>'Rollback Test '+(i+1));
 const testProfiles=process.env.GM_TEST_PROFILES?JSON.parse(process.env.GM_TEST_PROFILES):[{color:1,shirt:15,hat:24},{color:10,shirt:2,hat:3},{color:7,shirt:8,hat:15},{color:4,shirt:11,hat:18}];
 const configuredDelays=(process.env.GM_NETWORK_DELAYS||process.env.GM_NETWORK_DELAY||'75').split(',').map(Number);
 const delays=Array.from({length:clientCount},(_,i)=>configuredDelays[i]??configuredDelays.at(-1));
@@ -32,7 +33,7 @@ const out=path.join(__dirname,'results',process.env.GM_NETWORK_LABEL||'network')
    },{delay:delays[i]});
    await page.goto(process.env.GAME_URL||'http://127.0.0.1:3003/');
    await page.waitForFunction(()=>document.getElementById('connection').textContent==='Connected');
-   await page.locator('#name').fill('Rollback Test '+(i+1));
+   await page.locator('#name').fill(testNames[i]);
   }
   await pages[0].locator('#create').click();await pages[0].locator('#room-title').waitFor();
   if(gameMode!=='last-man-standing')await pages[0].locator('#mode').selectOption(gameMode);
@@ -40,7 +41,7 @@ const out=path.join(__dirname,'results',process.env.GM_NETWORK_LABEL||'network')
   for(const page of pages.slice(1)){await page.locator('#room-code').fill(room);await page.locator('button[type="submit"]').click();}
   await pages[0].waitForFunction(count=>[...document.querySelectorAll('#players li')].filter(item=>!item.classList.contains('empty')).length===count,clientCount);
   for(let i=0;i<clientCount;i++){
-   const profile=testProfiles[i];await pages[i].locator(`.skin-color[data-color="${profile.color}"]`).click();await pages[i].locator('#skin-shirt').selectOption(String(profile.shirt));await pages[i].locator('#skin-hat').selectOption(String(profile.hat));
+   const profile=testProfiles[i];await pages[i].evaluate(profile=>send('profile',profile),profile);
   }
   await Promise.all(pages.map(page=>page.waitForFunction(expected=>JSON.stringify(gunmayhemDiagnostics().profiles)===JSON.stringify(expected),testProfiles.slice(0,clientCount))));
   await pages[0].waitForFunction(()=>!document.getElementById('start').disabled);await pages[0].locator('#start').click();
@@ -52,9 +53,9 @@ const out=path.join(__dirname,'results',process.env.GM_NETWORK_LABEL||'network')
   }
   await Promise.all(pages.map(p=>p.evaluate(()=>release())));await new Promise(r=>setTimeout(r,1500));
   report.clients=await Promise.all(pages.map(async(p,i)=>{
-   const parent=await p.evaluate(()=>({diagnostics:gunmayhemDiagnostics(),states:testStates,frames:frameTimes,messages:runtimeMessages,notice:document.getElementById('notice').textContent,overlay:document.getElementById('overlay-text').textContent}));
+   const parent=await p.evaluate(()=>({diagnostics:gunmayhemDiagnostics(),states:testStates,frames:frameTimes,messages:runtimeMessages,notice:document.getElementById('notice').textContent,overlay:document.getElementById('overlay-text').textContent,previewActive:Boolean(document.getElementById('character-preview-frame'))}));
    const runtimeFrame=p.frames().find(f=>f.url().includes('runtime.html'));
-   const runtime=runtimeFrame?await runtimeFrame.evaluate(()=>{const state=call('netState');return{diagnostics:rollbackDiagnostics(),nativeMode:state.mode,nativeProfiles:state.profiles};}):null;
+   const runtime=runtimeFrame?await runtimeFrame.evaluate(()=>{const state=call('netState');return{diagnostics:rollbackDiagnostics(),nativeMode:state.mode,nativeProfiles:state.profiles,nativeNameFields:state.nameFields};}):null;
    await p.screenshot({path:path.join(out,`client-${i}.png`)});
    return{parent,runtime};
   }));
@@ -63,8 +64,12 @@ const out=path.join(__dirname,'results',process.env.GM_NETWORK_LABEL||'network')
   for(const f of shared)for(const client of report.clients.slice(1))assert.deepEqual(report.clients[0].parent.states[f],client.parent.states[f],'State mismatch at '+f);
   for(const c of report.clients){
    assert(c.parent.diagnostics.started,JSON.stringify(c.parent));
+   assert.equal(c.parent.previewActive,false,'The lobby-only character preview must be released during a match');
    assert.equal(c.runtime?.nativeMode,gameMode==='gun-game'?4:1,'The SWF started the wrong original game mode');
    assert.deepEqual(c.runtime?.nativeProfiles.slice(0,clientCount).map(({color,shirt,hat})=>({color,shirt,hat})),testProfiles.slice(0,clientCount),'The SWF received the wrong character appearance');
+   assert.deepEqual(c.runtime?.nativeProfiles.slice(0,clientCount).map(profile=>profile.name),testNames.slice(0,clientCount),'The SWF received the wrong player names');
+   assert.deepEqual(c.runtime?.nativeNameFields.slice(0,clientCount).map(field=>field?.text),testNames.slice(0,clientCount),'The in-game name tags received the wrong text');
+   assert(c.runtime?.nativeNameFields.slice(0,clientCount).every(field=>field&&!field.embedFonts&&field.font==='_sans'&&field.textWidth>0),'Player names must use a CJK-capable device font');
    assert(c.runtime,'Game iframe was removed: '+JSON.stringify(c.parent));
    assert.equal(c.runtime.diagnostics.mode,'lockstep');
    assert.equal(c.runtime.diagnostics.metrics.rollbacks,0,'Production lockstep must not replay predicted history');
