@@ -148,6 +148,13 @@ _root.__netPreviewApply = function()
    panel._visible = true;
    menu._visible = true;
    player._visible = true;
+   if(!_root.__netPreviewRaised)
+   {
+      player.swapDepths(menu.getNextHighestDepth());
+      menu.swapDepths(panel.getNextHighestDepth());
+      panel.swapDepths(_root.getNextHighestDepth());
+      _root.__netPreviewRaised = true;
+   }
    panel.setMask(null);
    menu.setMask(null);
    player.setMask(null);
@@ -209,7 +216,7 @@ _root.netPreviewDebug = function()
    var menu = panel == undefined ? undefined : panel.menu1;
    var player = menu == undefined ? undefined : menu.player;
    var bounds = player == undefined ? undefined : player.getBounds(_root);
-   return {timeline:_root._currentframe,panel:panel != undefined,panelFrame:panel == undefined ? -1 : panel._currentframe,panelX:panel == undefined ? 0 : panel._x,panelY:panel == undefined ? 0 : panel._y,menu:menu != undefined,menuFrame:menu == undefined ? -1 : menu._currentframe,menuX:menu == undefined ? 0 : menu._x,menuY:menu == undefined ? 0 : menu._y,player:player != undefined,playerX:player == undefined ? 0 : player._x,playerY:player == undefined ? 0 : player._y,playerAlpha:player == undefined ? 0 : player._alpha,playerVisible:player == undefined ? false : player._visible,colorFrame:player == undefined ? -1 : player.head._currentframe,shirtFrame:player == undefined ? -1 : player.shirt._currentframe,hatFrame:player == undefined ? -1 : player.hat._currentframe,bounds:bounds,original:_root.__netPreviewOriginal,timer:_root.__netPreviewTimer};
+   return {timeline:_root._currentframe,panel:panel != undefined,panelFrame:panel == undefined ? -1 : panel._currentframe,panelDepth:panel == undefined ? -1 : panel.getDepth(),panelX:panel == undefined ? 0 : panel._x,panelY:panel == undefined ? 0 : panel._y,menu:menu != undefined,menuFrame:menu == undefined ? -1 : menu._currentframe,menuDepth:menu == undefined ? -1 : menu.getDepth(),menuX:menu == undefined ? 0 : menu._x,menuY:menu == undefined ? 0 : menu._y,player:player != undefined,playerDepth:player == undefined ? -1 : player.getDepth(),playerX:player == undefined ? 0 : player._x,playerY:player == undefined ? 0 : player._y,playerAlpha:player == undefined ? 0 : player._alpha,playerVisible:player == undefined ? false : player._visible,colorFrame:player == undefined ? -1 : player.head._currentframe,shirtFrame:player == undefined ? -1 : player.shirt._currentframe,hatFrame:player == undefined ? -1 : player.hat._currentframe,bounds:bounds,original:_root.__netPreviewOriginal,timer:_root.__netPreviewTimer};
 };
 _root.__netScalars = function(mc)
 {

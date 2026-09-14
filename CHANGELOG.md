@@ -6,6 +6,10 @@
 - Replace per-checkpoint WebGL resource maps and repeated retained-resource scans with pooled flat tables, checkpoint reference counts, and reusable marks.
 - Make the generated runtime build reproducible and remove deployment-specific values from repository examples.
 
+## 0.23.1
+
+- Raise the complete original customization display hierarchy above its static overlays so the lobby character preview has no vertical obstruction.
+
 ## 0.23.0
 
 - Added a live lobby preview built from the original character artwork, animation, outfits, and headwear.

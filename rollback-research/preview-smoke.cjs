@@ -21,6 +21,7 @@ const {chromium}=require('playwright'),assert=require('node:assert/strict');
  await page.screenshot({path:'/tmp/gunmayhem-preview.png',fullPage:true});
  const frame=page.frames().find(item=>item.url().includes('preview.html'));const swf=await frame.evaluate(()=>document.querySelector('ruffle-player').netPreviewDebug());
  assert.equal(swf.colorFrame,7);assert.equal(swf.shirtFrame,6);assert.equal(swf.hatFrame,8);
+ assert(swf.panelDepth>=0&&swf.menuDepth>=0&&swf.playerDepth>=0,'The character must render above the original customization-screen overlays');
  await page.click('#leave');await page.waitForFunction(()=>!document.getElementById('character-preview-frame'));
  console.log(JSON.stringify({ready:true,swf,errors}));
  }finally{await browser.close();}
